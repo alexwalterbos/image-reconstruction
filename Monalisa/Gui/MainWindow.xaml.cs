@@ -1,4 +1,5 @@
-﻿using System;
+﻿using org.monalisa.algorithm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,10 @@ namespace org.monalisa.gui
         public MainWindow()
         {
             InitializeComponent();
+
+            var painter = new Painter(MainCanvas);
+            painter.Prepare(new TriangleTest());
+            painter.Paint();
         }
     }
 }
