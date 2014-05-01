@@ -39,7 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IDrawable.cs" />
+    <Compile Include="ICanvas.cs" />
+    <Compile Include="IShape.cs" />
     <Compile Include="IPolygon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TriangleTest.cs" />
