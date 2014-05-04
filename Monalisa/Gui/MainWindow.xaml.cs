@@ -22,14 +22,13 @@ namespace org.monalisa.gui
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Painter painter;
+
         public MainWindow()
         {
             InitializeComponent();
             SetToDefaults();
-
-            var painter = new Painter(MainCanvas);
-            painter.Prepare(new TriangleTest());
-            painter.Paint();
+            painter = new Painter(MainCanvas);
         }
 
         // Image uploader
@@ -76,6 +75,12 @@ namespace org.monalisa.gui
             TextBox_CanvasSizeY.Text = "240";
             TextBox_PolygonCount.Text = "200";
             ComboBox_PolygonType.SelectedIndex = 0;
+        }
+
+        private void Run_Click(object sender, RoutedEventArgs e)
+        {
+            painter.Prepare(new TriangleTest());
+            painter.Paint();
         }
     }
 }
