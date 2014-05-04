@@ -13,6 +13,6 @@ namespace org.monalisa.algorithm
     public interface ICanvas
     {
         // The elements on this canvas
-        ICollection<IShape> Elements { get; set; }
+        ICollection<IShape> Elements { get; }
     }
 }

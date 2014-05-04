@@ -36,26 +36,26 @@ namespace org.monalisa.gui
         /// not yet display it.
         /// </summary>
         /// <param name="element">Shape to draw</param>
-        public void Prepare(IShape element)
+        public UIElement Prepare(IShape element)
         {
             // check if sape is a polygon
             var polygon = (IPolygon)element;
             if (polygon == null) throw new NotImplementedException("Only polygon shapes are implemented at this time");
 
             // Prepare polygon shape
-            this.Prepare(polygon);
+            return this.Prepare(polygon);
         }
 
         /// <summary>
         /// Prepare a polygon for drawing.
         /// </summary>
         /// <param name="element">Polygon shape to draw</param>
-        protected void Prepare(IPolygon element)
+        protected UIElement Prepare(IPolygon element)
         {
             var polygon = new Polygon();
             polygon.Fill = new SolidColorBrush(Color.FromArgb(element.Alpha, element.Red, element.Green, element.Blue));
             foreach (var point in element.Coordinates) polygon.Points.Add(new Point(point.Item1, point.Item2));
-            Canvas.Children.Add(polygon);
+            return polygon;
         }
 
         /// <summary>
@@ -67,15 +67,21 @@ namespace org.monalisa.gui
         }
 
         /// <summary>
+        /// Apperently we are writing with graphite. The painter has now problem whiping the slate clean.
+        /// </summary>
+        public void WipeCanvas()
+        {
+            Canvas.Children.Clear();
+        }
+
+        /// <summary>
         /// Paint a complete canvas in one go
         /// </summary>
         /// <param name="canvas">canvas with elements to paint</param>
         public void Paint(ICanvas canvas)
         {
-            foreach (var element in canvas.Elements) 
-            {
-                this.Prepare(element);
-            }
+            this.WipeCanvas();
+            foreach (var element in canvas.Elements) Canvas.Children.Add(this.Prepare(element));
             this.Paint();
         }
     }
