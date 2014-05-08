@@ -10,7 +10,7 @@ namespace org.monalisa.console
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hallo wereld!");
+            Console.WriteLine("Hello world!");
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }
