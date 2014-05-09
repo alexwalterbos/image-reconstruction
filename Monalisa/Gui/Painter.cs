@@ -63,7 +63,7 @@ namespace org.monalisa.gui
         /// </summary>
         public void Paint()
         {
-            Canvas.UpdateLayout();
+            Canvas.InvalidateVisual();
         }
 
         /// <summary>

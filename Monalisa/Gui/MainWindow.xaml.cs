@@ -2,8 +2,10 @@
 using org.monalisa.algorithm;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -77,16 +79,50 @@ namespace org.monalisa.gui
             ComboBox_PolygonType.SelectedIndex = 0;
         }
 
-        private void Run_Click(object sender, RoutedEventArgs e)
+        private async void Run_Click(object sender, RoutedEventArgs e)
         {
-            painter.Paint(new Program(int.Parse(TextBox_PolygonCount.Text)));
+            var program = new Program(int.Parse(TextBox_PolygonCount.Text));
+            program.EpochCompleted += (a, b) => painter.Paint(program.Canvas);
+            program.EpochCompleted += (a, b) => { Label_Status.Content = "" + program.polygonCount + " Polygons"; };
+            //program.EpochCompleted += (a, b) => Debug.WriteLine("Epoch completed " + DateTime.Now);
+            //program.AlgorithmCompleted += (a, b) => { Button_Run.Content = "Finished"; };
+            await program.RunAsync();
         }
     }
 
-    class Program : ICanvas
+    class Program : IAlgorithm
+    {
+        public ICanvas Canvas { get; private set; }
+        public int polygonCount;
+        private bool back = false;
+
+        public Program(int polygonCount = 1)
+        {
+            this.polygonCount = polygonCount;
+        }
+
+        public async Task RunAsync()
+        {
+            while (polygonCount > 1)
+            {
+                if (back) polygonCount--;
+                else polygonCount++;
+                Canvas = new Canvas(polygonCount);
+                await Task.Delay(1);
+                if (polygonCount == 100) back = true;
+                EpochCompleted(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler EpochCompleted;
+
+        public event EventHandler AlgorithmCompleted;
+    }
+
+    class Canvas : ICanvas
     {
         public int PolygonCount { get; set; }
-        public Program(int polygonCount = 3)
+        public Canvas(int polygonCount = 3)
         {
             PolygonCount = polygonCount;
 
