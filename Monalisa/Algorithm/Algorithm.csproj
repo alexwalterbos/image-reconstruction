@@ -11,6 +11,8 @@
     <AssemblyName>Algorithm</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,11 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ICanvas.cs" />
-    <Compile Include="IShape.cs" />
-    <Compile Include="IPolygon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TriangleTest.cs" />
+    <Compile Include="Interfaces\ICanvas.cs" />
+    <Compile Include="Interfaces\IPolygon.cs" />
+    <Compile Include="Interfaces\IShape.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -53,4 +55,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
 </Project>
