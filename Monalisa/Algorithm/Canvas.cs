@@ -70,18 +70,18 @@ namespace org.monalisa.algorithm
         /// </summary>
         private double CalculateSimilarity()
         {
-            double similair;
+            double similar;
             using (var image = Painter.Paint(environment, this))
             {
-                long similairityCount = 0L;
+                long similarityCount = 0L;
                 byte[] test = image.AsByteArray();
                 byte[] seed = environment.Seed.AsByteArray();
                 for (int i = 0; i < test.Length; i++)
                     if (test[i] == seed[i])
-                        similairityCount++;
-                similair = similairityCount / (double)test.Length;
+                        similarityCount++;
+                similar = similarityCount / (double)test.Length;
             }
-            return similair;
+            return similar;
         }
     }
 
