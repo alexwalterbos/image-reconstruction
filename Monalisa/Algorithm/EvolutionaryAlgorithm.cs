@@ -46,7 +46,7 @@ namespace org.monalisa.algorithm
         ///          CrossoverPercentage = 0.5
         ///          => 50 pairs (100 offspring)
         /// </summary>
-        public double CrossoverPercentage { get; set; }
+        public double CrossoverFactor { get; set; }
 
         /// <summary>
         /// Chance that considered individuals mutate.
@@ -119,7 +119,7 @@ namespace org.monalisa.algorithm
             CanvasCount = 100;
             PolygonCount = 200;
             PolygonEdgeCount = 3; // triangles
-            CrossoverPercentage = 0.25; // creates 25 pairs, 50 offspring
+            CrossoverFactor = 0.25; // creates 25 pairs, 50 offspring
             MutationChance = 0.01;
 
             Seed = new Bitmap(CanvasWidth, CanvasHeight);
@@ -185,7 +185,7 @@ namespace org.monalisa.algorithm
         protected List<ICanvas> Crossover(List<ICanvas> candidates = null)
         {
             // Select couples by doing a roulette wheel selection
-            int amount = (int)Math.Floor(CanvasCount * CrossoverPercentage);
+            int amount = (int)Math.Floor(CanvasCount * CrossoverFactor);
             var selected = RouletteWheelSelect(amount, candidates ?? population);
 
             // recombine shapes in parent canvases to create offspring
