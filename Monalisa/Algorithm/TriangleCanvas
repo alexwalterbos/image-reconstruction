@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace org.monalisa.algorithm
+{
+    /// <summary>
+    /// Our algorithms canvas. This is not the gui canvas but the one of which
+    /// our evolutionary algorihm population consists.
+    /// </summary>
+    public class EvolutionaryAlgorithm
+    {
+    	public void Initialize()
+    	{
+    		// Generate 50 canvases of 200 triangles (random)
+    		// Calculate Fitness
+    	}
+
+    	public void Run() // Until stop critirium function
+    	{
+    		// Generate new using crossover
+    		// Mutate some
+    		// Kill off to 50
+    		// Calculate Fitness
+    		// repeat
+    	}
+
+    	protected double CalculateFitness()
+    	{
+    		// Compare each image to seeder image
+    	}
+
+    	protected void ApplyCrossover()
+    	{
+    		// roulette wheel selection, do crossover
+    		// needs fitness
+    		// needs N of crossovers
+    	}
+
+    	protected void ApplyMutation()
+    	{
+    		// roll dice for each individual
+    		// if selected, mutate
+    	}
+
+    	protected void ApplySurvivalOffTheFitest()
+    	{
+    		// Kill weakest untill N = 50
+    	}
+
+    }
+
+    public class Triangle
+    {
+    	public void Mutate()
+    	{
+    		// to binary string
+    		// flip substring
+    		// to object representation
+    	}
+
+    	public static Pair<Triangle> CrossOver(Triangle t1, Triangle t2)
+    	{
+    		// to binary string
+    		// exchange strings
+    		// to object representation
+    	}
+
+    	public static ClaculateFitness()
+    	{
+    		// compare to seeder image
+    	}
+    }
+}

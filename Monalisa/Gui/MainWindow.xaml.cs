@@ -26,7 +26,7 @@ namespace org.monalisa.gui
             InitializeComponent();
 
             var painter = new Painter(MainCanvas);
-            painter.Prepare(new TriangleTest());
+            painter.Prepare(new TriangleExample());
             painter.Paint();
         }
     }
