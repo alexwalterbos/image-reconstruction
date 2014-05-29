@@ -14,6 +14,11 @@ namespace org.monalisa.algorithm
     /// </summary>
     public class EvolutionaryAlgorithm
     {
+        public event EventHandler<AlgorithmEvent> EpochCompleted;
+        public event EventHandler<AlgorithmEvent> FitterFound;
+        public event EventHandler<AlgorithmEvent> AlgorithmStarted;
+        public event EventHandler<AlgorithmEvent> AlgorithmCompleted;
+
         /// <summary>
         /// Width of canvas.
         /// </summary>
@@ -75,7 +80,12 @@ namespace org.monalisa.algorithm
         /// Number of epochs the fittest individual has not changed
         /// </summary>
         public int StagnationCount { get; protected set; }
-        private double previousFittest = 0;
+
+        /// <summary>
+        /// Get the fitness of the fittest individual
+        /// </summary>
+        public double Fitness { get { return population.CalculateFittest().Fitness; } }
+        private double previousFitness = 0;
 
 
         /// <summary>
@@ -104,6 +114,14 @@ namespace org.monalisa.algorithm
         /// </summary>
         public DateTime? TimeStopped { get; protected set; }
 
+        public ReadOnlyCollection<ICanvas> Population
+        {
+            get
+            {
+                return population.AsReadOnly();
+            }
+        }
+
         // actual population used by algorithm
         private List<ICanvas> population;
 
@@ -123,11 +141,11 @@ namespace org.monalisa.algorithm
             factory = new PolygonFactory(this, randomGenerator);
             CanvasWidth = 100;
             CanvasHeight = 100;
-            CanvasCount = 200;
-            PolygonCount = 300;
+            CanvasCount = 50;
+            PolygonCount = 100;
             PolygonEdgeCount = 3; // triangles
-            CrossoverFactor = 0.25; // creates 25 pairs, 50 offspring
-            MutationChance = 0.05;
+            CrossoverFactor = 0.5;
+            MutationChance = 0.1;
 
             Seed = new Bitmap(CanvasWidth, CanvasHeight);
             using (Graphics gfx = Graphics.FromImage(Seed))
@@ -146,12 +164,22 @@ namespace org.monalisa.algorithm
             Seed.Save("Seed.bmp");
         }
 
+        public async Task RunAsync(Func<Boolean> stopCondition)
+        {
+            await Task.Factory.StartNew(() => Run(stopCondition));
+        }
+
+
         /// <summary>
         /// Run the actual algorithm
         /// </summary>
         /// <param name="stopCondition">When to stop algorithm</param>
         public void Run(Func<bool> stopCondition) 
         {
+            // Call algorithm start event
+            if (AlgorithmStarted!=null) 
+                AlgorithmStarted(this, new AlgorithmEvent(this));
+
             // start timer
             TimeStarted = DateTime.Now;
 
@@ -177,22 +205,23 @@ namespace org.monalisa.algorithm
                 Epoch++;
 
                 // update stagnation count
-                if (previousFittest == population.CalculateFittest().Fitness)
-                    StagnationCount++;
-                else StagnationCount = 0;
-                previousFittest = population.CalculateFittest().Fitness;
-                
-                // print fittest
-                Console.Write("Epoch {0, -4}: {1,5:N5}", Epoch, population.CalculateFittest().Fitness);
-                if (StagnationCount > 0) for (int i = 0; i < StagnationCount; i++) Console.Write('*');
-                Console.WriteLine();
+                if (this.previousFitness == this.Fitness) StagnationCount++;
+                else StagnationCount = 0;                
+
+                // Call epoch done event
+                if (EpochCompleted != null)
+                    EpochCompleted(this, new AlgorithmEvent(this));
+
+                // update previous
+                previousFitness = Fitness;
             }
 
             // stop timer
             TimeStopped = DateTime.Now;
-
-            // output best result
-            Painter.Paint(this, population.CalculateFittest()).Save("Fittest.bmp");
+            
+            // Call algorithm done event
+            if (AlgorithmCompleted != null)
+                AlgorithmCompleted(this, new AlgorithmEvent(this));
         }
 
         /// <summary>
@@ -325,6 +354,16 @@ namespace org.monalisa.algorithm
         protected void ApplySurvivalOffTheFitest()
         {
             population = population.SortByFitness().Take(this.CanvasCount).ToList();
+        }
+
+        public class AlgorithmEvent : EventArgs
+        {
+            public EvolutionaryAlgorithm Current { get; protected set; }
+
+            public AlgorithmEvent(EvolutionaryAlgorithm current)
+            {
+                Current = current;
+            }
         }
     }
 }

@@ -10,7 +10,7 @@
     	</Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
@@ -48,8 +48,8 @@
             <Button     Grid.Row="9" Grid.ColumnSpan="3" Content="Browse..." Height="20" VerticalAlignment="Top" Click="Button_Click"/>
             <Button x:Name="Button_Run"     Grid.Row="10" Grid.ColumnSpan="3" Content="Run" Click="Run_Click" />
         </Grid>
-        <Canvas x:Name="MainCanvas" Grid.Column="1"/>
+        <Image x:Name="MainImage" Grid.Column="1"/>
         <Image x:Name="SeedImage" Grid.Column="2" />
-        <Label x:Name="Label_Status" Grid.Column="1" Grid.Row="1"/>
+        <Label x:Name="Label_Status" Grid.Column="1" Grid.Row="1" FontFamily="Lucida Console"/>
     </Grid>
 </Window>

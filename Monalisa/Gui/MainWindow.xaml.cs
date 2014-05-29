@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,6 +17,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
+using System.Drawing.Imaging;
 
 namespace org.monalisa.gui
 {
@@ -24,13 +27,10 @@ namespace org.monalisa.gui
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Painter painter;
-
         public MainWindow()
         {
             InitializeComponent();
             SetToDefaults();
-            painter = new Painter(MainCanvas);
         }
 
         // Image uploader
@@ -82,14 +82,32 @@ namespace org.monalisa.gui
         private async void Run_Click(object sender, RoutedEventArgs e)
         {
             var EA = new EvolutionaryAlgorithm();
-            EA.Run(() => EA.TimeRan < TimeSpan.FromSeconds(10));
-
+            EA.AlgorithmStarted +=   (s, args) => Dispatcher.Invoke(new Action(() => SaveBitmap(EA.Seed, SeedImage)));
+            EA.EpochCompleted +=     (s, args) => Dispatcher.Invoke(new Action(() => SaveBitmap(Painter.Paint(EA, EA.Population.CalculateFittest()), MainImage)));
+            EA.EpochCompleted +=     (s, args) => Dispatcher.Invoke(new Action(() => Label_Status.Content = string.Format("Epoch:      {0, 5}\nStagnation: {2, 5}\nFitness:    {1,0:N3}\nRuntime:    {3:mm\\:ss}", EA.Epoch, EA.Fitness, EA.StagnationCount, EA.TimeRan)));
+            EA.AlgorithmCompleted += (s, args) => Dispatcher.Invoke(new Action(() => Button_Run.Content = "Finished"));
+            await EA.RunAsync(() => EA.StagnationCount > 20);
+            
             //var program = new Program(int.Parse(TextBox_PolygonCount.Text));
             //program.EpochCompleted += (a, b) => painter.Paint(program.Canvas);
-            //program.EpochCompleted += (a, b) => { Label_Status.Content = "" + program.polygonCount + " Polygons"; };
             ////program.EpochCompleted += (a, b) => Debug.WriteLine("Epoch completed " + DateTime.Now);
             ////program.AlgorithmCompleted += (a, b) => { Button_Run.Content = "Finished"; };
             //await program.RunAsync();
+        }
+
+        private void SaveBitmap(Bitmap bitmap, System.Windows.Controls.Image imageCanvas)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, ImageFormat.Png);
+                memory.Position = 0;
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+                imageCanvas.Source = bitmapImage;
+            }
         }
     }
 }
