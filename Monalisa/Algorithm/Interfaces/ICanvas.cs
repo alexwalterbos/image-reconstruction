@@ -12,7 +12,14 @@ namespace org.monalisa.algorithm
     /// </summary>
     public interface ICanvas
     {
-        // The elements on this canvas
-        ICollection<IShape> Elements { get; }
+        /// <summary>
+        /// This are the shapes that are drawn onto the canvas.
+        /// </summary>
+        List<IShape> Elements { get; set; }
+
+        /// <summary>
+        /// The fitness of this canvas.Fitness values are between 0.0 and 1.0. Higher fitness is better.
+        /// </summary>
+        double Fitness { get; }
     }
 }

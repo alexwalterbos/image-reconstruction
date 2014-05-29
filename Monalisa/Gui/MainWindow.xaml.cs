@@ -81,85 +81,15 @@ namespace org.monalisa.gui
 
         private async void Run_Click(object sender, RoutedEventArgs e)
         {
-            var program = new Program(int.Parse(TextBox_PolygonCount.Text));
-            program.EpochCompleted += (a, b) => painter.Paint(program.Canvas);
-            program.EpochCompleted += (a, b) => { Label_Status.Content = "" + program.polygonCount + " Polygons"; };
-            //program.EpochCompleted += (a, b) => Debug.WriteLine("Epoch completed " + DateTime.Now);
-            //program.AlgorithmCompleted += (a, b) => { Button_Run.Content = "Finished"; };
-            await program.RunAsync();
+            var EA = new EvolutionaryAlgorithm();
+            EA.Run(() => EA.TimeRan < TimeSpan.FromSeconds(10));
+
+            //var program = new Program(int.Parse(TextBox_PolygonCount.Text));
+            //program.EpochCompleted += (a, b) => painter.Paint(program.Canvas);
+            //program.EpochCompleted += (a, b) => { Label_Status.Content = "" + program.polygonCount + " Polygons"; };
+            ////program.EpochCompleted += (a, b) => Debug.WriteLine("Epoch completed " + DateTime.Now);
+            ////program.AlgorithmCompleted += (a, b) => { Button_Run.Content = "Finished"; };
+            //await program.RunAsync();
         }
-    }
-
-    class Program : IAlgorithm
-    {
-        public ICanvas Canvas { get; private set; }
-        public int polygonCount;
-        private bool back = false;
-
-        public Program(int polygonCount = 1)
-        {
-            this.polygonCount = polygonCount;
-        }
-
-        public async Task RunAsync()
-        {
-            while (polygonCount > 1)
-            {
-                if (back) polygonCount--;
-                else polygonCount++;
-                Canvas = new Canvas(polygonCount);
-                await Task.Delay(1);
-                if (polygonCount == 100) back = true;
-                EpochCompleted(this, EventArgs.Empty);
-            }
-        }
-
-        public event EventHandler EpochCompleted;
-
-        public event EventHandler AlgorithmCompleted;
-    }
-
-    class Canvas : ICanvas
-    {
-        public int PolygonCount { get; set; }
-        public Canvas(int polygonCount = 3)
-        {
-            PolygonCount = polygonCount;
-
-        }
-
-        public ICollection<IShape> Elements
-        {
-            get
-            {
-                var elements = new List<IShape>(PolygonCount);
-                var random = new Random();
-                for (int i = 0; i < PolygonCount; i++)
-                    elements.Add(new RandomTriangle(r: random));
-                return elements;
-            }
-        }
-    }
-
-    class RandomTriangle : IPolygon
-    {
-        public RandomTriangle(int maxWidth = 320, int maxHeight = 240, Random r = null)
-        {
-            if (r == null) r = new Random();
-            var p1 = new Tuple<int, int>(r.Next(maxWidth), r.Next(maxHeight));
-            var p2 = new Tuple<int, int>(r.Next(maxWidth), r.Next(maxHeight));
-            var p3 = new Tuple<int, int>(r.Next(maxWidth), r.Next(maxHeight));
-            Coordinates = new List<Tuple<int, int>>(new Tuple<int, int>[] { p1, p2, p3 });
-            Alpha = (byte)r.Next(255);
-            Red = (byte)r.Next(255);
-            Green = (byte)r.Next(255);
-            Blue = (byte)r.Next(255);
-        }
-
-        public ICollection<Tuple<int, int>> Coordinates { get; private set; }
-        public byte Alpha { get; private set; }
-        public byte Red { get; private set; }
-        public byte Green { get; private set; }
-        public byte Blue { get; private set; }
     }
 }

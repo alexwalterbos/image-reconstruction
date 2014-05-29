@@ -1,4 +1,5 @@
-﻿using System;
+﻿using org.monalisa.algorithm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace org.monalisa.console
         static void Main(string[] args)
         {
             Console.WriteLine("Hallo wereld!");
+            var EA = new EvolutionaryAlgorithm();
+            EA.Run(() => EA.StagnationCount > 10);
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }

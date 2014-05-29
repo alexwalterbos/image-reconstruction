@@ -15,27 +15,27 @@ namespace org.monalisa.algorithm
     {
         /// <summary>
         /// Endpoints of this polygon. Consists of a collection of integer 
-        /// pairs.
+        /// pairs. Order matters.
         /// </summary>
-        ICollection<Tuple<int,int>> Coordinates { get; }
+        List<Tuple<int,int>> Coordinates { get; }
         
         /// <summary>
-        /// Transparency channel of this polygon's color
+        /// Transparency channel of this polygon's color.
         /// </summary>
         byte Alpha { get; }
 
         /// <summary>
-        /// Red color channel of this polygon
+        /// Red color channel of this polygon.
         /// </summary>
         byte Red { get; }
 
         /// <summary>
-        /// Green color channel of this polygon
+        /// Green color channel of this polygon.
         /// </summary>
         byte Green { get; }
 
         /// <summary>
-        /// Blue color channel of this polygon
+        /// Blue color channel of this polygon.
         /// </summary>
         byte Blue { get; }
     }

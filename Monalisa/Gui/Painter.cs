@@ -52,7 +52,7 @@ namespace org.monalisa.gui
         /// <param name="element">Polygon shape to draw</param>
         protected UIElement Prepare(IPolygon element)
         {
-            var polygon = new Polygon();
+            var polygon = new System.Windows.Shapes.Polygon();
             polygon.Fill = new SolidColorBrush(Color.FromArgb(element.Alpha, element.Red, element.Green, element.Blue));
             foreach (var point in element.Coordinates) polygon.Points.Add(new Point(point.Item1, point.Item2));
             return polygon;
