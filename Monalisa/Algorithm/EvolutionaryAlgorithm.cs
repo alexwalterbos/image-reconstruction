@@ -168,6 +168,9 @@ namespace org.monalisa.algorithm
 
                 // add to general population
                 population.AddRange(offspring);
+
+                // TODO: Experimental!
+                population.AddRange(factory.RandomCanvases(100));
                 
                 // Kill off bottom
                 ApplySurvivalOffTheFitest();
