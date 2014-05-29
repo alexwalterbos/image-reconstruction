@@ -123,24 +123,25 @@ namespace org.monalisa.algorithm
             factory = new PolygonFactory(this, randomGenerator);
             CanvasWidth = 100;
             CanvasHeight = 100;
-            CanvasCount = 100;
-            PolygonCount = 20;
+            CanvasCount = 200;
+            PolygonCount = 300;
             PolygonEdgeCount = 3; // triangles
             CrossoverFactor = 0.25; // creates 25 pairs, 50 offspring
-            MutationChance = 0.01;
+            MutationChance = 0.05;
 
             Seed = new Bitmap(CanvasWidth, CanvasHeight);
             using (Graphics gfx = Graphics.FromImage(Seed))
             {
                 var brushR = new SolidBrush(Color.Red);
                 var brushB = new SolidBrush(Color.Blue);
-                var triangle1 = new Point[]{ new Point(0,0), new Point(100,0), new Point(0,100)};
+                var triangle1 = new Point[] { new Point(0, 0), new Point(100, 0), new Point(0, 100) };
                 var triangle2 = new Point[] { new Point(100, 100), new Point(100, 0), new Point(0, 100) };
                 gfx.FillPolygon(brushR, triangle1, System.Drawing.Drawing2D.FillMode.Alternate);
                 gfx.FillPolygon(brushB, triangle2, System.Drawing.Drawing2D.FillMode.Alternate);
                 brushR.Dispose();
                 brushB.Dispose();
             }
+
             // goto {project_root}/Console/bin/{debug|release}/Seed.bmp to see seed image
             Seed.Save("Seed.bmp");
         }
@@ -168,9 +169,6 @@ namespace org.monalisa.algorithm
 
                 // add to general population
                 population.AddRange(offspring);
-
-                // TODO: Experimental!
-                population.AddRange(factory.RandomCanvases(100));
                 
                 // Kill off bottom
                 ApplySurvivalOffTheFitest();
