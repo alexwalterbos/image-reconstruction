@@ -13,7 +13,7 @@ namespace org.monalisa.console
         {
             Console.WriteLine("Hallo wereld!");
             var EA = new EvolutionaryAlgorithm();
-            EA.Run(() => EA.Epoch == 20);
+            EA.Run(() => EA.StagnationCount > 50);
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }

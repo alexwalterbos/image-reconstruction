@@ -72,6 +72,13 @@ namespace org.monalisa.algorithm
         public int Epoch { get; protected set; }
 
         /// <summary>
+        /// Number of epochs the fittest individual has not changed
+        /// </summary>
+        public int StagnationCount { get; protected set; }
+        private double previousFittest = 0;
+
+
+        /// <summary>
         /// Time the algorithm has currently ran
         /// </summary>
         public TimeSpan TimeRan
@@ -114,10 +121,10 @@ namespace org.monalisa.algorithm
         {
             randomGenerator = new Random();
             factory = new PolygonFactory(this, randomGenerator);
-            CanvasWidth = 640;
-            CanvasHeight = 480;
+            CanvasWidth = 100;
+            CanvasHeight = 100;
             CanvasCount = 100;
-            PolygonCount = 200;
+            PolygonCount = 20;
             PolygonEdgeCount = 3; // triangles
             CrossoverFactor = 0.25; // creates 25 pairs, 50 offspring
             MutationChance = 0.01;
@@ -127,8 +134,10 @@ namespace org.monalisa.algorithm
             {
                 var brushR = new SolidBrush(Color.Red);
                 var brushB = new SolidBrush(Color.Blue);
-                gfx.FillRectangle(brushB, 0, 0, 640, 480);
-                gfx.FillRectangle(brushR, 160, 120, 320, 240);                
+                var triangle1 = new Point[]{ new Point(0,0), new Point(100,0), new Point(0,100)};
+                var triangle2 = new Point[] { new Point(100, 100), new Point(100, 0), new Point(0, 100) };
+                gfx.FillPolygon(brushR, triangle1, System.Drawing.Drawing2D.FillMode.Alternate);
+                gfx.FillPolygon(brushB, triangle2, System.Drawing.Drawing2D.FillMode.Alternate);
                 brushR.Dispose();
                 brushB.Dispose();
             }
@@ -159,22 +168,30 @@ namespace org.monalisa.algorithm
 
                 // add to general population
                 population.AddRange(offspring);
-
+                
                 // Kill off bottom
                 ApplySurvivalOffTheFitest();
 
                 // update itteration count
                 Epoch++;
 
+                // update stagnation count
+                if (previousFittest == population.CalculateFittest().Fitness)
+                    StagnationCount++;
+                else StagnationCount = 0;
+                previousFittest = population.CalculateFittest().Fitness;
+                
                 // print fittest
-                Console.WriteLine(population.CalculateFittest().Fitness);
+                Console.Write("Epoch {0, -4}: {1,5:N5}", Epoch, population.CalculateFittest().Fitness);
+                if (StagnationCount > 0) for (int i = 0; i < StagnationCount; i++) Console.Write('*');
+                Console.WriteLine();
             }
 
             // stop timer
             TimeStopped = DateTime.Now;
 
             // output best result
-            Painter.Paint(this, population.CalculateFittest()).Save("fittest.bmp");
+            Painter.Paint(this, population.CalculateFittest()).Save("Fittest.bmp");
         }
 
         /// <summary>
