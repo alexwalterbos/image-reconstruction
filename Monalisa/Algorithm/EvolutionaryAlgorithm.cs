@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace org.monalisa.algorithm
@@ -86,8 +87,7 @@ namespace org.monalisa.algorithm
         /// </summary>
         public double Fitness { get { return population.CalculateFittest().Fitness; } }
         private double previousFitness = 0;
-
-
+        
         /// <summary>
         /// Time the algorithm has currently ran
         /// </summary>
@@ -139,6 +139,14 @@ namespace org.monalisa.algorithm
         {
             randomGenerator = new Random();
             factory = new PolygonFactory(this, randomGenerator);
+        }
+
+        /// <summary>
+        /// Initialize using the Red/Blue triangle Seed image and expirmental settings
+        /// Call this function before the Run()/RunAsync() function
+        /// </summary>
+        public void Init_Experimental()
+        {
             CanvasWidth = 100;
             CanvasHeight = 100;
             CanvasCount = 50;
@@ -159,15 +167,14 @@ namespace org.monalisa.algorithm
                 brushR.Dispose();
                 brushB.Dispose();
             }
-
-            // goto {project_root}/Console/bin/{debug|release}/Seed.bmp to see seed image
-            Seed.Save("Seed.bmp");
         }
-
-        public async Task RunAsync(Func<Boolean> stopCondition)
+        public async Task RunAsync(Func<Boolean> stopCondition, CancellationToken token)
         {
-            await Task.Factory.StartNew(() => Run(stopCondition));
+            ctoken = token;
+            await Task.Run(()=>Run(stopCondition), token);
         }
+
+        private CancellationToken ctoken = CancellationToken.None;
 
 
         /// <summary>
@@ -214,6 +221,8 @@ namespace org.monalisa.algorithm
 
                 // update previous
                 previousFitness = Fitness;
+
+                ctoken.ThrowIfCancellationRequested();
             }
 
             // stop timer

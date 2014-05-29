@@ -46,5 +46,10 @@ namespace org.monalisa.algorithm
         /// Blue color channel of this polygon.
         /// </summary>
         public byte Blue { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("R: {0}, G: {1}, B: {2}, A: {3}, pts: {4}", Red, Green, Blue, Alpha, string.Join(", ", Coordinates.Select(p => p.ToString())));
+        }
     }
 }

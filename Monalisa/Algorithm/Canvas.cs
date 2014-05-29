@@ -85,6 +85,10 @@ namespace org.monalisa.algorithm
             }
             return similar;
         }
-    }
 
+        public override string ToString()
+        {
+            return string.Join("\n", Elements.Select(p=>p.ToString()).ToArray());
+        }
+    }
 }
