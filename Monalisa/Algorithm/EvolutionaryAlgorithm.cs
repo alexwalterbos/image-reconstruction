@@ -87,7 +87,7 @@ namespace org.monalisa.algorithm
         /// </summary>
         public double Fitness { get { return population.CalculateFittest().Fitness; } }
         private double previousFitness = 0;
-        
+
         /// <summary>
         /// Time the algorithm has currently ran
         /// </summary>
@@ -95,7 +95,7 @@ namespace org.monalisa.algorithm
         {
             get
             {
-                if (!TimeStarted.HasValue) 
+                if (!TimeStarted.HasValue)
                     return TimeSpan.Zero;
                 else if (!TimeStopped.HasValue)
                     return DateTime.Now - TimeStarted.Value;
@@ -171,7 +171,7 @@ namespace org.monalisa.algorithm
         public async Task RunAsync(Func<Boolean> stopCondition, CancellationToken token)
         {
             ctoken = token;
-            await Task.Run(()=>Run(stopCondition), token);
+            await Task.Run(() => Run(stopCondition), token);
         }
 
         private CancellationToken ctoken = CancellationToken.None;
@@ -181,10 +181,10 @@ namespace org.monalisa.algorithm
         /// Run the actual algorithm
         /// </summary>
         /// <param name="stopCondition">When to stop algorithm</param>
-        public void Run(Func<bool> stopCondition) 
+        public void Run(Func<bool> stopCondition)
         {
             // Call algorithm start event
-            if (AlgorithmStarted!=null) 
+            if (AlgorithmStarted != null)
                 AlgorithmStarted(this, new AlgorithmEvent(this));
 
             // start timer
@@ -200,11 +200,11 @@ namespace org.monalisa.algorithm
                 var offspring = Crossover(population);
 
                 // Apply mutation on new indviduals
-                offspring = Mutate(offspring);
+                offspring = Mutate();
 
                 // add to general population
                 population.AddRange(offspring);
-                
+
                 // Kill off bottom
                 ApplySurvivalOffTheFitest();
 
@@ -213,7 +213,7 @@ namespace org.monalisa.algorithm
 
                 // update stagnation count
                 if (this.previousFitness == this.Fitness) StagnationCount++;
-                else StagnationCount = 0;                
+                else StagnationCount = 0;
 
                 // Call epoch done event
                 if (EpochCompleted != null)
@@ -227,7 +227,7 @@ namespace org.monalisa.algorithm
 
             // stop timer
             TimeStopped = DateTime.Now;
-            
+
             // Call algorithm done event
             if (AlgorithmCompleted != null)
                 AlgorithmCompleted(this, new AlgorithmEvent(this));
@@ -249,14 +249,32 @@ namespace org.monalisa.algorithm
             foreach (var couple in selected)
             {
                 var crossoverPoint = randomGenerator.Next(PolygonCount);
-                List<IShape> elements1 = new List<IShape>(this.PolygonCount);
-                List<IShape> elements2 = new List<IShape>(this.PolygonCount);
-                elements1.AddRange(couple.Item1.Elements.Take(crossoverPoint));
-                elements1.AddRange(couple.Item2.Elements.Skip(crossoverPoint));
-                elements2.AddRange(couple.Item2.Elements.Take(crossoverPoint));
-                elements2.AddRange(couple.Item1.Elements.Skip(crossoverPoint));
-                offspring.Add(new Canvas(this) { Elements = elements1 });
-                offspring.Add(new Canvas(this) { Elements = elements2 });
+                var orginal1 = couple.Item1.AsBitArray();
+                var orginal2 = couple.Item2.AsBitArray();
+                var offspring1 = new List<bool>();
+                var offspring2 = new List<bool>();
+                offspring1.AddRange(orginal1.Take(crossoverPoint));
+                offspring1.AddRange(orginal2.Skip(crossoverPoint));
+                offspring2.AddRange(orginal2.Take(crossoverPoint));
+                offspring2.AddRange(orginal1.Skip(crossoverPoint));
+                offspring.Add(offspring1.ToArray().AsCanvas(this));
+                offspring.Add(offspring2.ToArray().AsCanvas(this));
+            }
+
+
+            foreach (var canvas in offspring)
+            {
+                // convert out of range values to in range values
+                foreach (var element in canvas.Elements)
+                {
+                    var polygon = element as IPolygon;
+                    for (int i = 0; i < polygon.Coordinates.Count; i++)
+                    {
+                        var x = Math.Abs(polygon.Coordinates[i].Item1) % CanvasWidth;
+                        var y = Math.Abs(polygon.Coordinates[i].Item2) % CanvasHeight;
+                        polygon.Coordinates[i] = new Tuple<int, int>(x, y);
+                    }
+                }
             }
 
             // return list of offspring
@@ -273,13 +291,13 @@ namespace org.monalisa.algorithm
         {
             // if no candidates are given, use entire population
             candidates = candidates ?? population;
-            
+
             // sort by fitness  TODO: remove because it's costly and not necessary
             var sortedPopulation = candidates.SortByFitness();
 
             // generate total sum of fitness (used for normalization)
             var fitnessSum = candidates.Sum(c => c.Fitness);
-            
+
             // create a accumelated and normalized reproduction chance list (example: fitness = [1, 2, 2] => accum[0.2, 0.6, 1.0])
             var accumulatedReproductionChance = sortedPopulation.Select(p => (double)p.Fitness / fitnessSum).ToList();
             for (int i = accumulatedReproductionChance.Count - 2; i >= 0; i--)
@@ -303,7 +321,7 @@ namespace org.monalisa.algorithm
                         secondSelected = sortedPopulation[i];
 
                     // both individuals fount, stop searching for couple
-                    if (firstSelected != null && secondSelected != null) break;                        
+                    if (firstSelected != null && secondSelected != null) break;
                 }
 
                 // only add if not accidently added same individual on both sides of the couple
@@ -323,7 +341,7 @@ namespace org.monalisa.algorithm
         protected List<ICanvas> Mutate(List<ICanvas> candidates = null)
         {
             // roll dice for each individual if selected, mutate
-            var newCanvases = new List<ICanvas>(candidates.Count);
+            var newCanvases = new List<ICanvas>(candidates!=null?candidates.Count:population.Count);
             foreach (var canvas in candidates ?? population)
             {
                 if (randomGenerator.NextDouble() < MutationChance)
@@ -332,21 +350,28 @@ namespace org.monalisa.algorithm
                     List<IShape> mutated = new List<IShape>(canvas.Elements.Count);
 
                     // generate crossover point
-                    var crossoverPoint = randomGenerator.Next(PolygonCount);
-                    // generate direction
-                    var upto = randomGenerator.NextDouble() > 0.5;
+                    var crossoverPoint1 = randomGenerator.Next(PolygonCount);
+                    var crossoverPoint2 = randomGenerator.Next(crossoverPoint1, PolygonCount);
 
-                    // regenerate everything from crossover point in certain direction
-                    if (upto)
+                    var modified = canvas.AsBitArray();
+                    for (int i = crossoverPoint1; i < crossoverPoint2; i++)
+                        modified[i] = !modified[i];
+
+                    var newCanvas = modified.AsCanvas(this);
+
+                    // convert out of range values to in range values
+                    foreach (var element in newCanvas.Elements)
                     {
-                        mutated.AddRange(elements.Take(crossoverPoint));
-                        mutated.AddRange(factory.RandomPolygons(this.PolygonCount - crossoverPoint));
+                        var polygon = element as IPolygon;
+                        for (int i = 0; i < polygon.Coordinates.Count; i++)
+                        {
+                            var x = Math.Abs(polygon.Coordinates[i].Item1) % CanvasWidth;
+                            var y = Math.Abs(polygon.Coordinates[i].Item2) % CanvasHeight;
+                            polygon.Coordinates[i] = new Tuple<int, int>(x, y);
+                        }
                     }
-                    else
-                    {
-                        mutated.AddRange(factory.RandomPolygons(crossoverPoint));
-                        mutated.AddRange(elements.Skip(crossoverPoint));
-                    }
+
+                    newCanvases.Add(newCanvas);
                 }
                 // not mutated, add original
                 else

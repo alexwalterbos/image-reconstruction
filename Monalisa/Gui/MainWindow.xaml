@@ -90,7 +90,7 @@
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
-                <CheckBox x:Name="Checkbox_MaxStagnation" />
+                <CheckBox x:Name="Checkbox_MaxStagnation" IsChecked="True" />
                 <TextBox x:Name="TextBox_MaxStagnation" Grid.Column="1" Text="10" Height="20" VerticalAlignment="Top"/>
             </Grid>
             <Button     Grid.Row="19" Content="Browse..." Height="20" VerticalAlignment="Top" Click="Button_Click"/>

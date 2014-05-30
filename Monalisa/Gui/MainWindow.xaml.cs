@@ -83,6 +83,17 @@ namespace org.monalisa.gui
             TextBox_CrossoverFactor.Text = "0.5";
             TextBox_MutationFactor.Text = "0.05";
             ComboBox_PolygonType.SelectedIndex = 0;
+            bool found = false;
+            if (File.Exists("Seed.bmp"))
+            {
+                var image = new Bitmap("Seed.bmp");
+                SaveBitmap(image, this.SeedImage);
+                TextBox_CanvasSizeX.Text = image.Width.ToString();
+                TextBox_CanvasSizeY.Text = image.Height.ToString();
+                image.Dispose();
+            }
+
+             //   SeedImage.Source = new BitmapImage(new Uri("Seed.bmp"));
         }
 
         private async void Run_Click(object sender, RoutedEventArgs e)
@@ -126,7 +137,17 @@ namespace org.monalisa.gui
 
                 try
                 {
-                    EA.AlgorithmStarted += (s, args) => Dispatcher.Invoke(new Action(() => SaveBitmap(EA.Seed, SeedImage)));
+                    EA.AlgorithmStarted += (s, args) => Dispatcher.Invoke(new Action(() =>
+                        {
+                            try
+                            {
+                                EA.Seed.Save("Seed.bmp");
+                            }
+                            catch (Exception)
+                            {
+                                // do nothing
+                            }
+                        }));
                     EA.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => SaveBitmap(Painter.Paint(EA, EA.Population.CalculateFittest()), MainImage)));
                     EA.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => Label_Status.Content = string.Format("Epoch:      {0, 5}\nStagnation: {2, 5}\nFitness:    {1,0:N3}\nRuntime:    {3:mm\\:ss}", EA.Epoch, EA.Fitness, EA.StagnationCount, EA.TimeRan)));
                     EA.AlgorithmCompleted += (s, args) => Dispatcher.Invoke(new Action(() =>

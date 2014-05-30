@@ -12,38 +12,6 @@ namespace org.monalisa.console
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("bitarray");
-            var EA2 = new EvolutionaryAlgorithm()
-            {
-                PolygonEdgeCount = 1,
-                PolygonCount = 1
-            };
-
-            var testSubjet = new Canvas(EA2)
-            {
-                Elements = new List<IShape>()
-                {
-                new Polygon()
-                    {
-                        Red = 0xff,
-                        Green = 0xfe,
-                        Blue = 0xfd,
-                        Alpha = 0xfc,
-                        Coordinates = new List<Tuple<int, int>>()
-                        {
-                            new Tuple<int, int>(255*256, 255)
-                        }
-                    }
-                }
-            };
-            Console.WriteLine(testSubjet);
-            Console.WriteLine(testSubjet.AsByteArray().ToByteString());
-            Console.WriteLine(testSubjet.AsBitArray().ToBitString());
-            Console.WriteLine(testSubjet.AsByteArray().AsCanvas(EA2));
-            Console.WriteLine(testSubjet.AsBitArray().AsCanvas(EA2));
-            Console.ReadKey();
-            return;
-
             Console.WriteLine("Starting algorithm...");
             var EA = new EvolutionaryAlgorithm();
 
