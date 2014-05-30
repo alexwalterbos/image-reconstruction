@@ -90,5 +90,13 @@ namespace org.monalisa.algorithm
         {
             return string.Join("\n", Elements.Select(p=>p.ToString()).ToArray());
         }
+
+        public ICanvas Clone()
+        {
+            return new Canvas(this.environment)
+            {
+                Elements = this.Elements.Select(e => e.Clone()).ToList()
+            };
+        }
     }
 }

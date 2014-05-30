@@ -47,19 +47,6 @@ namespace org.monalisa.algorithm
         public int PolygonEdgeCount { get; set; }
 
         /// <summary>
-        /// Set the amount to be selected for reproduction
-        /// example: CanvasCount         = 100
-        ///          CrossoverPercentage = 0.5
-        ///          => 50 pairs (100 offspring)
-        /// </summary>
-        public double CrossoverFactor { get; set; }
-
-        /// <summary>
-        /// Chance that considered individuals mutate.
-        /// </summary>
-        public double MutationChance { get; set; }
-
-        /// <summary>
         /// Image to recreate.
         /// </summary>
         public Bitmap Seed { get; set; }
@@ -87,7 +74,7 @@ namespace org.monalisa.algorithm
         /// </summary>
         public double Fitness { get { return population.CalculateFittest().Fitness; } }
         private double previousFitness = 0;
-        
+
         /// <summary>
         /// Time the algorithm has currently ran
         /// </summary>
@@ -95,7 +82,7 @@ namespace org.monalisa.algorithm
         {
             get
             {
-                if (!TimeStarted.HasValue) 
+                if (!TimeStarted.HasValue)
                     return TimeSpan.Zero;
                 else if (!TimeStopped.HasValue)
                     return DateTime.Now - TimeStarted.Value;
@@ -122,6 +109,29 @@ namespace org.monalisa.algorithm
             }
         }
 
+        /// <summary>
+        /// Relative chance the position will be mutated
+        /// </summary>
+        public double WeightPositionChange { get; set; }
+
+        /// <summary>
+        /// Relative chance the color will be mutated
+        /// </summary>
+        public double WeightColorChange { get; set; }
+
+        /// <summary>
+        /// Relative chance order of drawing shapes will be changed
+        /// </summary>
+        public double WeightIndexChange { get; set; }
+
+        /// <summary>
+        /// Relative chance a random canvas will be generated
+        /// </summary>
+        public double WeightRandomChange { get; set; }
+
+        public double WeightTotal { get { return WeightColorChange + WeightIndexChange + WeightPositionChange + WeightRandomChange; } }
+
+
         // actual population used by algorithm
         private List<ICanvas> population;
 
@@ -141,37 +151,10 @@ namespace org.monalisa.algorithm
             factory = new PolygonFactory(this, randomGenerator);
         }
 
-        /// <summary>
-        /// Initialize using the Red/Blue triangle Seed image and expirmental settings
-        /// Call this function before the Run()/RunAsync() function
-        /// </summary>
-        public void Init_Experimental()
-        {
-            CanvasWidth = 100;
-            CanvasHeight = 100;
-            CanvasCount = 50;
-            PolygonCount = 100;
-            PolygonEdgeCount = 3; // triangles
-            CrossoverFactor = 0.5;
-            MutationChance = 0.1;
-
-            Seed = new Bitmap(CanvasWidth, CanvasHeight);
-            using (Graphics gfx = Graphics.FromImage(Seed))
-            {
-                var brushR = new SolidBrush(Color.Red);
-                var brushB = new SolidBrush(Color.Blue);
-                var triangle1 = new Point[] { new Point(0, 0), new Point(100, 0), new Point(0, 100) };
-                var triangle2 = new Point[] { new Point(100, 100), new Point(100, 0), new Point(0, 100) };
-                gfx.FillPolygon(brushR, triangle1, System.Drawing.Drawing2D.FillMode.Alternate);
-                gfx.FillPolygon(brushB, triangle2, System.Drawing.Drawing2D.FillMode.Alternate);
-                brushR.Dispose();
-                brushB.Dispose();
-            }
-        }
         public async Task RunAsync(Func<Boolean> stopCondition, CancellationToken token)
         {
             ctoken = token;
-            await Task.Run(()=>Run(stopCondition), token);
+            await Task.Run(() => Run(stopCondition), token);
         }
 
         private CancellationToken ctoken = CancellationToken.None;
@@ -181,10 +164,10 @@ namespace org.monalisa.algorithm
         /// Run the actual algorithm
         /// </summary>
         /// <param name="stopCondition">When to stop algorithm</param>
-        public void Run(Func<bool> stopCondition) 
+        public void Run(Func<bool> stopCondition)
         {
             // Call algorithm start event
-            if (AlgorithmStarted!=null) 
+            if (AlgorithmStarted != null)
                 AlgorithmStarted(this, new AlgorithmEvent(this));
 
             // start timer
@@ -196,15 +179,12 @@ namespace org.monalisa.algorithm
             // while stopconditions is not met
             while (!stopCondition())
             {
-                // Apply crossover
-                var offspring = Crossover(population);
-
                 // Apply mutation on new indviduals
-                offspring = Mutate(offspring);
+                var offspring = Mutate();
 
                 // add to general population
                 population.AddRange(offspring);
-                
+
                 // Kill off bottom
                 ApplySurvivalOffTheFitest();
 
@@ -213,7 +193,7 @@ namespace org.monalisa.algorithm
 
                 // update stagnation count
                 if (this.previousFitness == this.Fitness) StagnationCount++;
-                else StagnationCount = 0;                
+                else StagnationCount = 0;
 
                 // Call epoch done event
                 if (EpochCompleted != null)
@@ -227,91 +207,10 @@ namespace org.monalisa.algorithm
 
             // stop timer
             TimeStopped = DateTime.Now;
-            
+
             // Call algorithm done event
             if (AlgorithmCompleted != null)
                 AlgorithmCompleted(this, new AlgorithmEvent(this));
-        }
-
-        /// <summary>
-        /// Apply crossover on candidates or complete population if no candidates are given
-        /// </summary>
-        /// <param name="candidates">candidates for crossover</param>
-        /// <returns>Offspring</returns>
-        protected List<ICanvas> Crossover(List<ICanvas> candidates = null)
-        {
-            // Select couples by doing a roulette wheel selection
-            int amount = (int)Math.Floor(CanvasCount * CrossoverFactor);
-            var selected = RouletteWheelSelect(amount, candidates ?? population);
-
-            // recombine shapes in parent canvases to create offspring
-            var offspring = new List<ICanvas>();
-            foreach (var couple in selected)
-            {
-                var crossoverPoint = randomGenerator.Next(PolygonCount);
-                List<IShape> elements1 = new List<IShape>(this.PolygonCount);
-                List<IShape> elements2 = new List<IShape>(this.PolygonCount);
-                elements1.AddRange(couple.Item1.Elements.Take(crossoverPoint));
-                elements1.AddRange(couple.Item2.Elements.Skip(crossoverPoint));
-                elements2.AddRange(couple.Item2.Elements.Take(crossoverPoint));
-                elements2.AddRange(couple.Item1.Elements.Skip(crossoverPoint));
-                offspring.Add(new Canvas(this) { Elements = elements1 });
-                offspring.Add(new Canvas(this) { Elements = elements2 });
-            }
-
-            // return list of offspring
-            return offspring;
-        }
-
-        /// <summary>
-        /// Select couples using roulettewheel selection
-        /// </summary>
-        /// <param name="amount">number of couples to select</param>
-        /// <param name="candidates">candidates to form couples out of</param>
-        /// <returns>list of couples</returns>
-        public List<Tuple<ICanvas, ICanvas>> RouletteWheelSelect(int amount, List<ICanvas> candidates = null)
-        {
-            // if no candidates are given, use entire population
-            candidates = candidates ?? population;
-            
-            // sort by fitness  TODO: remove because it's costly and not necessary
-            var sortedPopulation = candidates.SortByFitness();
-
-            // generate total sum of fitness (used for normalization)
-            var fitnessSum = candidates.Sum(c => c.Fitness);
-            
-            // create a accumelated and normalized reproduction chance list (example: fitness = [1, 2, 2] => accum[0.2, 0.6, 1.0])
-            var accumulatedReproductionChance = sortedPopulation.Select(p => (double)p.Fitness / fitnessSum).ToList();
-            for (int i = accumulatedReproductionChance.Count - 2; i >= 0; i--)
-                accumulatedReproductionChance[i] += accumulatedReproductionChance[i + 1];
-
-            // untill enough couples: spin the roulettewheel twice and see who is up all night to get lucky
-            var couples = new List<Tuple<ICanvas, ICanvas>>(amount);
-            while (couples.Count < amount)
-            {
-                var rand1 = randomGenerator.NextDouble();
-                var rand2 = randomGenerator.NextDouble();
-                ICanvas firstSelected = null;
-                ICanvas secondSelected = null;
-
-                // search for lucky couple
-                for (int i = sortedPopulation.Count - 1; i >= 0; i--)
-                {
-                    if (firstSelected == null && accumulatedReproductionChance[i] >= rand1)
-                        firstSelected = sortedPopulation[i];
-                    if (secondSelected == null && accumulatedReproductionChance[i] >= rand2)
-                        secondSelected = sortedPopulation[i];
-
-                    // both individuals fount, stop searching for couple
-                    if (firstSelected != null && secondSelected != null) break;                        
-                }
-
-                // only add if not accidently added same individual on both sides of the couple
-                if (firstSelected != secondSelected) couples.Add(new Tuple<ICanvas, ICanvas>(firstSelected, secondSelected));
-            }
-
-            // return the newly coupled
-            return couples;
         }
 
         /// <summary>
@@ -323,38 +222,73 @@ namespace org.monalisa.algorithm
         protected List<ICanvas> Mutate(List<ICanvas> candidates = null)
         {
             // roll dice for each individual if selected, mutate
-            var newCanvases = new List<ICanvas>(candidates.Count);
-            foreach (var canvas in candidates ?? population)
+            var newCanvases = candidates != null ? candidates.Select(c => c.Clone()).ToList() : population.Select(c => c.Clone()).ToList();
+            foreach (var canvas in newCanvases)
             {
-                if (randomGenerator.NextDouble() < MutationChance)
+                var dice = randomGenerator.NextDouble();
+                if (dice < WeightColorChange / WeightTotal)
                 {
-                    List<IShape> elements = new List<IShape>(canvas.Elements);
-                    List<IShape> mutated = new List<IShape>(canvas.Elements.Count);
-
-                    // generate crossover point
-                    var crossoverPoint = randomGenerator.Next(PolygonCount);
-                    // generate direction
-                    var upto = randomGenerator.NextDouble() > 0.5;
-
-                    // regenerate everything from crossover point in certain direction
-                    if (upto)
-                    {
-                        mutated.AddRange(elements.Take(crossoverPoint));
-                        mutated.AddRange(factory.RandomPolygons(this.PolygonCount - crossoverPoint));
-                    }
-                    else
-                    {
-                        mutated.AddRange(factory.RandomPolygons(crossoverPoint));
-                        mutated.AddRange(elements.Skip(crossoverPoint));
-                    }
+                    canvas.Elements = canvas.Elements.Select(MutateColor).ToList();
+                    continue;
                 }
-                // not mutated, add original
-                else
+
+                dice = randomGenerator.NextDouble();
+                if (dice < WeightPositionChange / WeightTotal)
                 {
-                    newCanvases.Add(canvas);
+                    canvas.Elements = canvas.Elements.Select(MutatePosition).ToList();
+                    continue;
+                }
+
+                dice = randomGenerator.NextDouble();
+                if (dice < WeightIndexChange / WeightTotal)
+                {
+                    ShuffleZOrder(canvas);
+                    continue;
+                }
+
+                dice = randomGenerator.NextDouble();
+                if (dice < WeightRandomChange / WeightTotal)
+                {
+                    canvas.Elements = factory.RandomPolygons();
                 }
             }
             return newCanvases;
+        }
+
+        protected IShape MutateColor(IShape shape)
+        {
+            var polygon = shape.Clone() as Polygon;
+            polygon.Alpha = (byte)Math.Max(0, Math.Min(255, ((int)polygon.Alpha + randomGenerator.Next(-10, 11))));
+            polygon.Red = (byte)Math.Max(0, Math.Min(255, ((int)polygon.Red + randomGenerator.Next(-10, 11))));
+            polygon.Green = (byte)Math.Max(0, Math.Min(255, ((int)polygon.Green + randomGenerator.Next(-10, 11))));
+            polygon.Blue = (byte)Math.Max(0, Math.Min(255, ((int)polygon.Blue + randomGenerator.Next(-10, 11))));
+            return polygon;
+        }
+
+        protected IShape MutatePosition(IShape shape)
+        {
+            var polygon = shape.Clone() as Polygon;
+            for (int i = 0; i < polygon.Coordinates.Count; i++)
+            {
+
+                var int1 = Math.Max(0, Math.Min(CanvasWidth, polygon.Coordinates[i].Item1 + randomGenerator.Next(-10, 11)));
+                var int2 = Math.Max(0, Math.Min(CanvasHeight, polygon.Coordinates[i].Item2 + randomGenerator.Next(-10, 11)));
+                polygon.Coordinates[i] = new Tuple<int, int>(int1, int2);
+            }
+            return polygon;
+        }
+
+        protected void ShuffleZOrder(ICanvas canvas)
+        {
+            int n = canvas.Elements.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = randomGenerator.Next(n + 1);
+                var value = canvas.Elements[k];
+                canvas.Elements[k] = canvas.Elements[n];
+                canvas.Elements[n] = value;
+            }
         }
 
         /// <summary>

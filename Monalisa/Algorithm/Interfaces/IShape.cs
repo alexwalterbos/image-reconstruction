@@ -5,7 +5,7 @@
     /// exists, but in the future we might expand by also including circles and
     /// ellipses.
     /// </summary>
-    public interface IShape
+    public interface IShape : ICloneable<IShape>
     {
         // Empty interface
     }

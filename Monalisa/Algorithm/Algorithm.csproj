@@ -49,7 +49,7 @@
     <Compile Include="Helpers\CanvasHelper.cs" />
     <Compile Include="EvolutionaryAlgorithm.cs" />
     <Compile Include="Helpers\LinqHelper.cs" />
-    <Compile Include="Helpers\BitHelper.cs" />
+    <Compile Include="Interfaces\ICloneable.cs" />
     <Compile Include="Painter.cs" />
     <Compile Include="PolygonFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

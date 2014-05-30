@@ -47,8 +47,8 @@ namespace org.monalisa.gui
             if (op.ShowDialog() == true)
             {
                 var image = new BitmapImage(new Uri(op.FileName));
-                TextBox_CanvasSizeX.Text = ((int)Math.Round(image.Width)).ToString();
-                TextBox_CanvasSizeY.Text = ((int)Math.Round(image.Height)).ToString();
+                TextBox_CanvasSizeX.Text = image.PixelWidth.ToString();
+                TextBox_CanvasSizeY.Text = image.PixelHeight.ToString();
                 SeedImage.Source = image;
             }
         }
@@ -56,6 +56,14 @@ namespace org.monalisa.gui
         private void TextBox_OnlyNumeric(object sender, TextCompositionEventArgs e)
         {
             if (!IsNaturalNumber(e.Text))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void TextBox_OnlyDecimal(object sender, TextCompositionEventArgs e)
+        {
+            if (!IsNaturalNumber(e.Text) && e.Text != ".")
             {
                 e.Handled = true;
             }
@@ -78,16 +86,22 @@ namespace org.monalisa.gui
         /// </summary>
         public void SetToDefaults()
         {
-            TextBox_PopulationSize.Text = "100";
-            TextBox_PolygonCount.Text = "200";
-            TextBox_CrossoverFactor.Text = "0.5";
-            TextBox_MutationFactor.Text = "0.05";
-            ComboBox_PolygonType.SelectedIndex = 0;
+            bool found = false;
+            if (File.Exists("Seed.bmp"))
+            {
+                var image = new Bitmap("Seed.bmp");
+                SaveBitmap(image, this.SeedImage);
+                TextBox_CanvasSizeX.Text = image.Width.ToString();
+                TextBox_CanvasSizeY.Text = image.Height.ToString();
+                image.Dispose();
+            }
+
+            //   SeedImage.Source = new BitmapImage(new Uri("Seed.bmp"));
         }
 
         private async void Run_Click(object sender, RoutedEventArgs e)
         {
-            if (SeedImage.Source==null)
+            if (SeedImage.Source == null)
             {
                 Label_Status.Content = "No image set!";
                 return;
@@ -111,24 +125,54 @@ namespace org.monalisa.gui
                     CanvasCount = int.Parse(TextBox_PopulationSize.Text),
                     PolygonCount = int.Parse(TextBox_PolygonCount.Text),
                     PolygonEdgeCount = int.Parse(((ComboBoxItem)ComboBox_PolygonType.SelectedItem).Tag.ToString()),
-                    CrossoverFactor = double.Parse(TextBox_CrossoverFactor.Text),
-                    MutationChance = double.Parse(TextBox_MutationFactor.Text),
+                    WeightPositionChange = double.Parse(this.TextBox_PositionChange.Text),
+                    WeightColorChange = double.Parse(this.TextBox_ColorChange.Text),
+                    WeightIndexChange = double.Parse(this.TextBox_ZIndexChange.Text),
+                    WeightRandomChange = double.Parse(this.TextBox_RandomChange.Text),
                     Seed = ToBitmap((BitmapImage)SeedImage.Source)
                 };
 
                 int? maxRuntime = null;
                 int? maxEpochs = null;
                 int? maxStagnation = null;
+                double? minFitness = null;
                 if (CheckBox_MaxRuntime.IsChecked == true) maxRuntime = int.Parse(TextBox_MaxRuntime.Text);
                 if (CheckBox_MaxEpochs.IsChecked == true) maxEpochs = int.Parse(TextBox_MaxEpochs.Text);
                 if (Checkbox_MaxStagnation.IsChecked == true) maxStagnation = int.Parse(TextBox_MaxStagnation.Text);
-
+                if (Checkbox_MinFitness.IsChecked == true) minFitness = double.Parse(Textbox_MinFitness.Text);
 
                 try
                 {
-                    EA.AlgorithmStarted += (s, args) => Dispatcher.Invoke(new Action(() => SaveBitmap(EA.Seed, SeedImage)));
+                    EA.AlgorithmStarted += (s, args) => Dispatcher.Invoke(new Action(() =>
+                        {
+                            try
+                            {
+                                EA.Seed.Save("Seed.bmp");
+                            }
+                            catch (Exception)
+                            {
+                                // do nothing
+                            }
+                        }));
+                    EA.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() =>
+                    {
+                        if (MainImage.Source == null) return;
+                        var bmp1 = ToBitmap(MainImage.Source as BitmapImage).AsByteArray();
+                        var bmp2 = ToBitmap(SeedImage.Source as BitmapImage).AsByteArray();
+                        var bmp3 = new byte[bmp1.Length];
+                        for (int i = 0; i < bmp1.Length; i += 4)
+                        {
+                            var dB = Math.Abs((int)bmp1[i] - (int)bmp2[i]);
+                            var dG = Math.Abs((int)bmp1[i + 1] - (int)bmp2[i + 1]);
+                            var dR = Math.Abs((int)bmp1[i + 2] - (int)bmp2[i + 2]);
+                            var dT = (dR + dG + dB) / 3;
+                            bmp3[i / 4] = (byte)(255-dT);
+                        }
+
+                        SaveBitmap(bmp3.AsBitmap(EA.CanvasWidth, EA.CanvasHeight), CompareImage);
+                    }));
                     EA.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => SaveBitmap(Painter.Paint(EA, EA.Population.CalculateFittest()), MainImage)));
-                    EA.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => Label_Status.Content = string.Format("Epoch:      {0, 5}\nStagnation: {2, 5}\nFitness:    {1,0:N3}\nRuntime:    {3:mm\\:ss}", EA.Epoch, EA.Fitness, EA.StagnationCount, EA.TimeRan)));
+                    EA.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => Label_Status.Content = string.Format("Epoch:      {0, 6}\nStagnation: {2, 6}\nFitness:    {1,0:N4}\nRuntime:     {3:mm\\:ss}", EA.Epoch, EA.Fitness, EA.StagnationCount, EA.TimeRan)));
                     EA.AlgorithmCompleted += (s, args) => Dispatcher.Invoke(new Action(() =>
                     {
                         Button_Run.Content = "Run";
@@ -136,11 +180,12 @@ namespace org.monalisa.gui
                         ctc = null;
                     }));
 
-                    await EA.RunAsync(() => StopCondition(EA, maxRuntime, maxEpochs, maxStagnation), ctc.Token);
+                    await EA.RunAsync(() => StopCondition(EA, maxRuntime, maxEpochs, maxStagnation, minFitness), ctc.Token);
                 }
                 catch (OperationCanceledException)
                 {
                     Label_Status.Content += "\nCanceled";
+                    Painter.Paint(EA, EA.Population.CalculateFittest()).Save("Fittest.bmp");
                 }
             }
             //var program = new Program(int.Parse(TextBox_PolygonCount.Text));
@@ -150,12 +195,13 @@ namespace org.monalisa.gui
             //await program.RunAsync();
         }
 
-        private bool StopCondition(EvolutionaryAlgorithm EA, int? maxRuntime, int? maxEpochs, int? maxStagnation)
+        private bool StopCondition(EvolutionaryAlgorithm EA, int? maxRuntime, int? maxEpochs, int? maxStagnation, double? minFitness)
         {
             bool stop = false;
             if (maxRuntime.HasValue) stop |= EA.TimeRan > TimeSpan.FromSeconds(maxRuntime.Value);
             if (maxEpochs.HasValue) stop |= EA.Epoch >= maxEpochs.Value;
             if (maxStagnation.HasValue) stop |= EA.StagnationCount >= maxStagnation.Value;
+            if (minFitness.HasValue) stop |= EA.Fitness >= minFitness.Value;
             return stop;
         }
 

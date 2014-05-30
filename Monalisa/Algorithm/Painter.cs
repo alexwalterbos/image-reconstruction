@@ -60,6 +60,8 @@ namespace org.monalisa.algorithm
             using (var gfx = Graphics.FromImage(image))
             {
                 gfx.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver; // enable alpha blending
+                //gfx.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; // enable AA
+                gfx.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality; // don't know
                 foreach (var element in canvas.Elements) Paint(element, gfx);
             }
             return image;

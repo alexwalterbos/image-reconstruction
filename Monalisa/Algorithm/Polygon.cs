@@ -51,5 +51,20 @@ namespace org.monalisa.algorithm
         {
             return string.Format("R: {0}, G: {1}, B: {2}, A: {3}, pts: {4}", Red, Green, Blue, Alpha, string.Join(", ", Coordinates.Select(p => p.ToString())));
         }
+
+        public IShape Clone()
+        {
+            var coordinates = new Tuple<int, int>[this.Coordinates.Count];
+            this.Coordinates.CopyTo(coordinates);
+
+            return new Polygon()
+            {
+                Red = this.Red,
+                Green = this.Green,
+                Blue = this.Blue,
+                Alpha = this.Alpha,
+                Coordinates = coordinates.ToList()
+            };
+        }
     }
 }

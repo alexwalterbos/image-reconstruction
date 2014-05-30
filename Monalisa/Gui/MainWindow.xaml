@@ -1,19 +1,25 @@
 ﻿<Window x:Class="org.monalisa.gui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="800" Width="1024">
+        Title="MainWindow" Height="800" Width="1200">
     <Grid>
     	<Grid.ColumnDefinitions>
-    		<ColumnDefinition Width="120"/>
-    		<ColumnDefinition/>
-    		<ColumnDefinition/>
-    	</Grid.ColumnDefinitions>
+    		<ColumnDefinition Width="140"/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="3*"/>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="3*"/>
                 <RowDefinition Height="2*"/>
@@ -40,52 +46,57 @@
             <Label Grid.Row="2"  Content="Canvas Size" />
             <Label Grid.Row="4"  Content="Number of Polygons" />
             <Label Grid.Row="6"  Content="Type of Polygons" />
-            <Label Grid.Row="8"  Content="Crossover Factor" />
-            <Label Grid.Row="10" Content="Mutation Factor" />
-            <Label Grid.Row="12" Content="Max Runtime (sec)" />
-            <Label Grid.Row="14" Content="Max Epochs" />
-            <Label Grid.Row="16" Content="Max Stagnation" />
-            <Label Grid.Row="18" Content="Original Image" />
+            <Label Grid.Row="8"  Content="Color Change" />
+            <Label Grid.Row="10" Content="Position Change" />
+            <Label Grid.Row="12" Content="Z-Index Change" />
+            <Label Grid.Row="14" Content="Random Change" />
+            <Label Grid.Row="16" Content="Max Runtime (sec)" />
+            <Label Grid.Row="18" Content="Max Epochs" />
+            <Label Grid.Row="20" Content="Max Stagnation" />
+            <Label Grid.Row="22" Content="Min Fitness" />
+            <Label Grid.Row="24" Content="Original Image" />
             
-            <TextBox x:Name="TextBox_PopulationSize" Grid.Row="1" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" />
+            <TextBox x:Name="TextBox_PopulationSize" Grid.Row="1" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" Text="10" />
             <Grid Grid.Row="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*"/>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="5*"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="TextBox_CanvasSizeX" Grid.Column="0" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" />
+                <TextBox x:Name="TextBox_CanvasSizeX" Grid.Column="0" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" IsEnabled="False" />
                 <Label Content="X"                    Grid.Column="1" Height="20" VerticalAlignment="Top" FontSize="10" Padding="0,5,0,0" HorizontalAlignment="Center"/>
-                <TextBox x:Name="TextBox_CanvasSizeY" Grid.Column="2" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" />
+                <TextBox x:Name="TextBox_CanvasSizeY" Grid.Column="2" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" IsEnabled="False" />
             </Grid>
-            <TextBox x:Name="TextBox_PolygonCount"   Grid.Row="5" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" />
+            <TextBox x:Name="TextBox_PolygonCount"   Grid.Row="5" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" Text="100" />
             
-            <ComboBox x:Name="ComboBox_PolygonType"  Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
+            <ComboBox x:Name="ComboBox_PolygonType"  Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" SelectedIndex="1">
                 <ComboBoxItem Content="Triangles" Tag="3" />
                 <ComboBoxItem Content="Quads"     Tag="4" />
                 <ComboBoxItem Content="Pentagons" Tag="5" />
                 <ComboBoxItem Content="Hexagons"  Tag="6" />
             </ComboBox>
 
-            <TextBox x:Name="TextBox_CrossoverFactor" Grid.Row="9" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" />
-            <TextBox x:Name="TextBox_MutationFactor" Grid.Row="11" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" />
-            <Grid Grid.Row="13">
+            <TextBox x:Name="TextBox_PositionChange" Grid.Row="9" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyDecimal" Text="8.0" />
+            <TextBox x:Name="TextBox_ColorChange" Grid.Row="11" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyDecimal" Text="4.0" />
+            <TextBox x:Name="TextBox_ZIndexChange" Grid.Row="13" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyDecimal" Text="2.0" />
+            <TextBox x:Name="TextBox_RandomChange" Grid.Row="15" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyDecimal" Text="1.0" />
+            <Grid Grid.Row="16" Margin="0,22,0,0" Grid.RowSpan="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox x:Name="CheckBox_MaxRuntime"/>
-                <TextBox x:Name="TextBox_MaxRuntime" Grid.Column="1" Text="600" Height="20" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBox_MaxRuntime" Grid.Column="1" Text="60" Height="20" VerticalAlignment="Top"/>
             </Grid>
-            <Grid Grid.Row="15">
+            <Grid Grid.Row="19">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="100"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox x:Name="CheckBox_MaxEpochs" />
                 <TextBox x:Name="TextBox_MaxEpochs" Grid.Column="1" Text="100" Height="20" VerticalAlignment="Top"/>
             </Grid>
-            <Grid Grid.Row="17">
+            <Grid Grid.Row="21">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="1*"/>
@@ -93,11 +104,20 @@
                 <CheckBox x:Name="Checkbox_MaxStagnation" />
                 <TextBox x:Name="TextBox_MaxStagnation" Grid.Column="1" Text="10" Height="20" VerticalAlignment="Top"/>
             </Grid>
-            <Button     Grid.Row="19" Content="Browse..." Height="20" VerticalAlignment="Top" Click="Button_Click"/>
-            <Button x:Name="Button_Run"     Grid.Row="20" Content="Run" Click="Run_Click" />
+            <Grid Grid.Row="23">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox x:Name="Checkbox_MinFitness" IsChecked="True" />
+                <TextBox x:Name="Textbox_MinFitness" Grid.Column="1" Text="0.99995" Height="20" VerticalAlignment="Top"/>
+            </Grid>
+            <Button     Grid.Row="25" Content="Browse..." Height="20" VerticalAlignment="Top" Click="Button_Click"/>
+            <Button x:Name="Button_Run"     Grid.Row="26" Content="Run" Click="Run_Click" />
         </Grid>
-        <Image x:Name="MainImage" Grid.Column="1"/>
-        <Image x:Name="SeedImage" Grid.Column="2" />
+        <Image x:Name="MainImage" Grid.Column="1" Margin="20,0" />
+        <Image x:Name="CompareImage" Grid.Column="2" Margin="20,0" />
+        <Image x:Name="SeedImage" Grid.Column="3" Margin="20,0" />
         <Label x:Name="Label_Status" Grid.Column="1" Grid.Row="1" FontFamily="Lucida Console"/>
     </Grid>
 </Window>

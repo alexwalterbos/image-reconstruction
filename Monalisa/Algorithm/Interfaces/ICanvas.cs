@@ -10,7 +10,7 @@ namespace org.monalisa.algorithm
     /// Our algorithms canvas. This is not the gui canvas but the one of which
     /// our evolutionary algorihm population consists.
     /// </summary>
-    public interface ICanvas
+    public interface ICanvas : ICloneable<ICanvas>
     {
         /// <summary>
         /// This are the shapes that are drawn onto the canvas.
