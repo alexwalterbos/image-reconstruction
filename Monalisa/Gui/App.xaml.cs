@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+﻿//-----------------------------------------------------------------------------
+// <copyright file="App.xaml.cs" company="Delft University of Technology">
+//  <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a>
+// </copyright>
+//-----------------------------------------------------------------------------
 
-namespace org.monalisa.gui
+namespace Org.Monalisa.Gui
 {
+    using System.Windows;
+
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Interaction logic
     /// </summary>
     public partial class App : Application
     {

@@ -1,4 +1,10 @@
-﻿using System.Reflection;
+﻿//-----------------------------------------------------------------------------
+// <copyright file="AssemblyInfo.cs" company="Delft University of Technology">
+//  <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a>
+// </copyright>
+//-----------------------------------------------------------------------------
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
