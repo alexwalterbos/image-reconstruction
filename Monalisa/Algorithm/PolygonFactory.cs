@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------------
+// <copyright file="PolygonFactory.cs" 
+//            company="Delft University of Technology">
+//  <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a>
+// </copyright>
+//-----------------------------------------------------------------------------
 
-namespace org.monalisa.algorithm
+namespace Org.Monalisa.Algorithm
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// A factory for the generation of random polygons and canvases.
     /// The factory is created within a specific environment which is used
@@ -13,28 +17,34 @@ namespace org.monalisa.algorithm
     /// </summary>
     public class PolygonFactory
     {
-        // The random number generator used by this factory
+        /// <summary>
+        /// The random number generator used by this factory
+        /// </summary>
         private Random r;
 
-        // the environment for this factory
+        /// <summary>
+        /// the environment for this factory
+        /// </summary>
         private EvolutionaryAlgorithm environment;
 
         /// <summary>
-        /// Create a new factory for the given environment.
+        /// Initializes a new instance of the <see cref="PolygonFactory"/> 
+        /// class. The environment provided is used for default values. 
+        /// Optionally a custom random generator can be provided.
         /// </summary>
-        /// <param name="environment">Used for finding out configuration.</param>
+        /// <param name="env">The configuration.</param>
         /// <param name="r">Custom random number generator.</param>
-        public PolygonFactory(EvolutionaryAlgorithm environment, Random r = null)
+        public PolygonFactory(EvolutionaryAlgorithm env, Random r = null)
         {
-            this.environment = environment;
+            this.environment = env;
 
             // assign given generator to r or default if null 
-            this.r = r ?? new Random();            
+            this.r = r ?? new Random();
         }
 
         /// <summary>
         /// Create <paramref name="amount"/> of canvases.
-        /// if no amount is geven, it generates according to the number
+        /// if no amount is given, it generates according to the number
         /// of canvases in the environment.
         /// </summary>
         /// <param name="amount">Number of canvases to generate.</param>
@@ -42,7 +52,11 @@ namespace org.monalisa.algorithm
         public List<ICanvas> RandomCanvases(int? amount = null)
         {
             var canvasList = new List<ICanvas>();
-            for (int i = 0; i < (amount??environment.CanvasCount); i++) canvasList.Add(RandomCanvas());
+            for (int i = 0; i < (amount ?? this.environment.CanvasCount); i++)
+            {
+                canvasList.Add(this.RandomCanvas());
+            }
+
             return canvasList;
         }
 
@@ -52,7 +66,10 @@ namespace org.monalisa.algorithm
         /// <returns>The generated canvas.</returns>
         public ICanvas RandomCanvas()
         {
-            return new Canvas(environment) { Elements = RandomPolygons() };
+            return new Canvas(this.environment) 
+            { 
+                Elements = this.RandomPolygons() 
+            };
         }
 
         /// <summary>
@@ -64,8 +81,13 @@ namespace org.monalisa.algorithm
         /// <returns>A list of generated polygons.</returns>
         public List<IShape> RandomPolygons(int? amount = null)
         {
-            var polygonList = new List<IShape>(amount??environment.PolygonCount);
-            for (int i = 0; i < (amount??environment.PolygonCount); i++) polygonList.Add(RandomPolygon());
+            int count = amount ?? this.environment.PolygonCount;
+            var polygonList = new List<IShape>(count);
+            for (int i = 0; i < count; i++)
+            {
+                polygonList.Add(this.RandomPolygon());
+            }
+
             return polygonList;
         }
 
@@ -77,27 +99,32 @@ namespace org.monalisa.algorithm
         {
             return new Polygon()
             {
-                Coordinates = RandomTuples(),
-                Alpha = (byte)r.Next(255),
-                Red = (byte)r.Next(255),
-                Green = (byte)r.Next(255),
-                Blue = (byte)r.Next(255)
+                Coordinates = this.RandomTuples(),
+                Alpha = (byte)this.r.Next(255),
+                Red = (byte)this.r.Next(255),
+                Green = (byte)this.r.Next(255),
+                Blue = (byte)this.r.Next(255)
             };
         }
 
         /// <summary>
-        /// Generate <paramref name="amount"/> of integer pairs.
-        /// if no amount is given, generates the default amount for polygonEdgeCount
-        /// given by the environment.
+        /// Generate <paramref name="amount"/> of integer pairs. If no amount 
+        /// is given, generates the default amount for polygonEdgeCount given 
+        /// by the environment.
         /// </summary>
         /// <param name="amount">Number of pairs to generate.</param>
         /// <returns>A list of generated pairs.</returns>
         public List<Tuple<int, int>> RandomTuples(int? amount = null)
         {
-            var tupleList = new List<Tuple<int, int>>(amount??environment.PolygonEdgeCount);
-            for (int i = 0; i < (amount??environment.PolygonEdgeCount); i++) tupleList.Add(RandomTuple());
+            int count = amount ?? this.environment.PolygonEdgeCount;
+            var tupleList = new List<Tuple<int, int>>(count);
+            for (int i = 0; i < count; i++)
+            {
+                tupleList.Add(this.RandomTuple());
+            }
+
             return tupleList;
-        }        
+        }
 
         /// <summary>
         /// Generate a single random pair of integers.
@@ -105,7 +132,9 @@ namespace org.monalisa.algorithm
         /// <returns>The generated pair of integers.</returns>
         public Tuple<int, int> RandomTuple()
         {
-            return new Tuple<int, int>(r.Next(environment.CanvasWidth), r.Next(environment.CanvasHeight));
+            return new Tuple<int, int>(
+                this.r.Next(this.environment.CanvasWidth), 
+                this.r.Next(this.environment.CanvasHeight));
         }
     }
 }

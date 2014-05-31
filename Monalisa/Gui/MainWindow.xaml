@@ -1,12 +1,10 @@
-﻿<Window x:Class="org.monalisa.gui.MainWindow"
+﻿<Window x:Class="Org.Monalisa.Gui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="800" Width="1200">
     <Grid>
     	<Grid.ColumnDefinitions>
     		<ColumnDefinition Width="140"/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -56,18 +54,18 @@
             <Label Grid.Row="22" Content="Min Fitness" />
             <Label Grid.Row="24" Content="Original Image" />
             
-            <TextBox x:Name="TextBox_PopulationSize" Grid.Row="1" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" Text="10" />
+            <TextBox x:Name="TextBox_PopulationSize" Grid.Row="1" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" Text="10" />
             <Grid Grid.Row="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*"/>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="5*"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="TextBox_CanvasSizeX" Grid.Column="0" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" IsEnabled="False" />
+                <TextBox x:Name="TextBox_CanvasSizeX" Grid.Column="0" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" IsEnabled="False" />
                 <Label Content="X"                    Grid.Column="1" Height="20" VerticalAlignment="Top" FontSize="10" Padding="0,5,0,0" HorizontalAlignment="Center"/>
-                <TextBox x:Name="TextBox_CanvasSizeY" Grid.Column="2" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" IsEnabled="False" />
+                <TextBox x:Name="TextBox_CanvasSizeY" Grid.Column="2" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" IsEnabled="False" />
             </Grid>
-            <TextBox x:Name="TextBox_PolygonCount"   Grid.Row="5" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyNumeric" Text="100" />
+            <TextBox x:Name="TextBox_PolygonCount"   Grid.Row="5" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" Text="100" />
             
             <ComboBox x:Name="ComboBox_PolygonType"  Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" SelectedIndex="1">
                 <ComboBoxItem Content="Triangles" Tag="3" />
@@ -76,10 +74,10 @@
                 <ComboBoxItem Content="Hexagons"  Tag="6" />
             </ComboBox>
 
-            <TextBox x:Name="TextBox_PositionChange" Grid.Row="9" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyDecimal" Text="8.0" />
-            <TextBox x:Name="TextBox_ColorChange" Grid.Row="11" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyDecimal" Text="4.0" />
-            <TextBox x:Name="TextBox_ZIndexChange" Grid.Row="13" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyDecimal" Text="2.0" />
-            <TextBox x:Name="TextBox_RandomChange" Grid.Row="15" Height="20" VerticalAlignment="Top" PreviewTextInput="TextBox_OnlyDecimal" Text="1.0" />
+            <TextBox x:Name="TextBox_PositionChange" Grid.Row="9" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="8.0" />
+            <TextBox x:Name="TextBox_ColorChange" Grid.Row="11" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="4.0" />
+            <TextBox x:Name="TextBox_ZIndexChange" Grid.Row="13" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="2.0" />
+            <TextBox x:Name="TextBox_RandomChange" Grid.Row="15" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="1.0" />
             <Grid Grid.Row="16" Margin="0,22,0,0" Grid.RowSpan="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20"/>
@@ -115,9 +113,22 @@
             <Button     Grid.Row="25" Content="Browse..." Height="20" VerticalAlignment="Top" Click="Button_Click"/>
             <Button x:Name="Button_Run"     Grid.Row="26" Content="Run" Click="Run_Click" />
         </Grid>
-        <Image x:Name="MainImage" Grid.Column="1" Margin="20,0" />
-        <Image x:Name="CompareImage" Grid.Column="2" Margin="20,0" />
-        <Image x:Name="SeedImage" Grid.Column="3" Margin="20,0" />
-        <Label x:Name="Label_Status" Grid.Column="1" Grid.Row="1" FontFamily="Lucida Console"/>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="2*"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label x:Name="Label_Status" Grid.ColumnSpan="3" Grid.Row="0" FontFamily="Lucida Console" FontSize="20"/>
+            <Image x:Name="MainImage" Grid.Column="0" Grid.Row="1" Margin="20,0" />
+            <Image x:Name="CompareImage" Grid.Column="1" Grid.Row="1" Margin="20,0" />
+            <Image x:Name="SeedImage" Grid.Column="2" Grid.Row="1" Margin="20,0" />
+            <Label x:Name="Label_Similar" Grid.ColumnSpan="3" Grid.Row="2" HorizontalAlignment="Center" FontSize="72" FontFamily="Microsoft NeoGothic" />
+        </Grid>
     </Grid>
 </Window>

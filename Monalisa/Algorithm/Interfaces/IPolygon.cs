@@ -1,41 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------------
+// <copyright file="IPolygon.cs" company="Delft University of Technology">
+//  <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a>
+// </copyright>
+//-----------------------------------------------------------------------------
 
-namespace org.monalisa.algorithm
+namespace Org.Monalisa.Algorithm
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// A contract interface for all polygons. By implementing this interface
     /// the polygon is also contracted for drawing by the 
-    /// <see cref="org.monalisa.gui.Painter"/>. 
+    /// <see cref="Org.Monalisa.gui.Painter"/>. 
     /// </summary>
     public interface IPolygon : IShape
     {
         /// <summary>
-        /// Endpoints of this polygon. Consists of a collection of integer 
-        /// pairs. Order matters.
+        /// Gets the endpoints of this polygon. 
+        /// Consists of a collection of integer pairs. Order matters.
         /// </summary>
-        List<Tuple<int,int>> Coordinates { get; }
-        
+        List<Tuple<int, int>> Coordinates { get; }
+
         /// <summary>
-        /// Transparency channel of this polygon's color.
+        /// Gets the transparency channel of this polygon's color.
         /// </summary>
         byte Alpha { get; }
 
         /// <summary>
-        /// Red color channel of this polygon.
+        /// Gets the red color channel of this polygon.
         /// </summary>
         byte Red { get; }
 
         /// <summary>
-        /// Green color channel of this polygon.
+        /// Gets the green color channel of this polygon.
         /// </summary>
         byte Green { get; }
 
         /// <summary>
-        /// Blue color channel of this polygon.
+        /// Gets the blue color channel of this polygon.
         /// </summary>
         byte Blue { get; }
     }

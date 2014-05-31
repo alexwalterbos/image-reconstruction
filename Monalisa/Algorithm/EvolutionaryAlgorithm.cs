@@ -1,164 +1,231 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------------
+// <copyright file="EvolutionaryAlgorithm.cs" 
+//            company="Delft University of Technology">
+//  <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a>
+// </copyright>
+//-----------------------------------------------------------------------------
 
-namespace org.monalisa.algorithm
+namespace Org.Monalisa.Algorithm
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Drawing;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     /// <summary>
-    /// Our algorithms canvas. This is not the gui canvas but the one of which
-    /// our evolutionary algorihm population consists.
+    /// This is the algorithm with all it's settings
     /// </summary>
     public class EvolutionaryAlgorithm
     {
+        /// <summary>
+        /// Backing field for <see cref="SeedByteArray"/>.
+        /// </summary>
+        private byte[] seedByteArray;
+
+        /// <summary>
+        /// Stores the previous fitness, this is used to detect stagnation.
+        /// </summary>
+        private double previousFitness = 0;
+
+        /// <summary>
+        /// Population used by the algorithm.
+        /// </summary>
+        private List<ICanvas> population;
+
+        /// <summary>
+        /// Factory used for random initializations.
+        /// </summary>
+        private PolygonFactory factory;
+
+        /// <summary>
+        /// Random number generator used for evolutionary strategies.
+        /// </summary>
+        private Random rand;
+
+        /// <summary>
+        /// Token used for cancelation when running asynchronously
+        /// </summary>
+        private CancellationToken cancelationToken = CancellationToken.None;
+
+        /// <summary>
+        /// Initializes a new instance of the 
+        /// <see cref="EvolutionaryAlgorithm"/> class. After creation, it 
+        /// should be run by using it's Run() or RunAsync() function.
+        /// </summary>
+        public EvolutionaryAlgorithm()
+        {
+            rand = new Random();
+            factory = new PolygonFactory(this, rand);
+        }
+
+        /// <summary>
+        /// Occurs when an epoch is completed.
+        /// </summary>
         public event EventHandler<AlgorithmEvent> EpochCompleted;
-        public event EventHandler<AlgorithmEvent> FitterFound;
+
+        /// <summary>
+        /// Occurs when the algorithm starts. When run is called.
+        /// </summary>
         public event EventHandler<AlgorithmEvent> AlgorithmStarted;
+
+        /// <summary>
+        /// Occurs when the algorithm is completed. When run is finished.
+        /// </summary>
         public event EventHandler<AlgorithmEvent> AlgorithmCompleted;
 
         /// <summary>
-        /// Width of canvas.
+        /// Gets or sets the width of canvas.
         /// </summary>
         public int CanvasWidth { get; set; }
 
         /// <summary>
-        /// Height of canvas
+        /// Gets or sets the height of canvas.
         /// </summary>
         public int CanvasHeight { get; set; }
 
         /// <summary>
-        /// Number of individuals in one population
+        /// Gets or sets the number of individuals in one population.
         /// </summary>
         public int CanvasCount { get; set; }
 
         /// <summary>
-        /// Number of polygons in one canvas
+        /// Gets or sets the number of polygons in one canvas.
         /// </summary>
         public int PolygonCount { get; set; }
 
         /// <summary>
-        /// Number of edges in one polygon.
+        /// Gets or sets the number of edges in one polygon.
         /// i.e. 3 => triangle.
         /// </summary>
         public int PolygonEdgeCount { get; set; }
 
         /// <summary>
-        /// Image to recreate.
+        /// Gets or sets the image to recreate.
         /// </summary>
         public Bitmap Seed { get; set; }
 
-        // backing field
-        private byte[] seedByteArray;
-
         /// <summary>
-        /// Image to recreate as byte array.
+        /// Gets the image to recreate as byte array.
         /// </summary>
-        public byte[] SeedByteArray { get { return seedByteArray ?? (seedByteArray = Seed.AsByteArray()); } }
+        public byte[] SeedByteArray
+        {
+            get
+            {
+                return seedByteArray ?? (seedByteArray = Seed.AsByteArray());
+            }
+        }
 
         /// <summary>
-        /// Number of runs currently done
+        /// Gets or sets the number of runs currently done.
         /// </summary>
         public int Epoch { get; protected set; }
 
         /// <summary>
-        /// Number of epochs the fittest individual has not changed
+        /// Gets or sets the number of epochs the fittest individual has not 
+        /// changed.
         /// </summary>
         public int StagnationCount { get; protected set; }
 
         /// <summary>
-        /// Get the fitness of the fittest individual
+        /// Gets the fitness of the fittest individual.
         /// </summary>
-        public double Fitness { get { return population.CalculateFittest().Fitness; } }
-        private double previousFitness = 0;
+        public double Fitness
+        {
+            get { return population.CalculateFittest().Fitness; }
+        }
 
         /// <summary>
-        /// Time the algorithm has currently ran
+        /// Gets the time the algorithm has currently ran.
         /// </summary>
         public TimeSpan TimeRan
         {
             get
             {
                 if (!TimeStarted.HasValue)
+                {
                     return TimeSpan.Zero;
+                }
                 else if (!TimeStopped.HasValue)
+                {
                     return DateTime.Now - TimeStarted.Value;
+                }
                 else
+                {
                     return TimeStopped.Value - TimeStarted.Value;
+                }
             }
         }
 
         /// <summary>
-        /// Time the algorithm started
+        /// Gets or sets the time the algorithm started.
         /// </summary>
         public DateTime? TimeStarted { get; protected set; }
 
         /// <summary>
-        /// Time the algorithm was finished
+        /// Gets or sets the time the algorithm was finished.
         /// </summary>
         public DateTime? TimeStopped { get; protected set; }
 
+        /// <summary>
+        /// Gets the current population of this algorithm.
+        /// </summary>
         public ReadOnlyCollection<ICanvas> Population
         {
-            get
-            {
-                return population.AsReadOnly();
-            }
+            get { return population.AsReadOnly(); }
         }
 
         /// <summary>
-        /// Relative chance the position will be mutated
+        /// Gets or sets the relative chance the position will be mutated.
         /// </summary>
         public double WeightPositionChange { get; set; }
 
         /// <summary>
-        /// Relative chance the color will be mutated
+        /// Gets or sets the relative chance the color will be mutated.
         /// </summary>
         public double WeightColorChange { get; set; }
 
         /// <summary>
-        /// Relative chance order of drawing shapes will be changed
+        /// Gets or sets the relative chance order of drawing shapes will be 
+        /// changed.
         /// </summary>
         public double WeightIndexChange { get; set; }
 
         /// <summary>
-        /// Relative chance a random canvas will be generated
+        /// Gets or sets the relative chance a random canvas will be generated.
         /// </summary>
         public double WeightRandomChange { get; set; }
 
-        public double WeightTotal { get { return WeightColorChange + WeightIndexChange + WeightPositionChange + WeightRandomChange; } }
-
-
-        // actual population used by algorithm
-        private List<ICanvas> population;
-
-        // factory used for random initializations
-        private PolygonFactory factory;
-
-        // random number generator used for evolutionary strategies
-        private Random randomGenerator;
+        /// <summary>
+        /// Gets the total weight.
+        /// </summary>
+        public double WeightTotal
+        {
+            get
+            {
+                return WeightColorChange
+                     + WeightIndexChange
+                     + WeightPositionChange
+                     + WeightRandomChange;
+            }
+        }
 
         /// <summary>
-        /// Create a new Evolutionary algorithm.
-        /// It can be run by using it's Run() function.
+        /// Runs the algorithm asynchronous
         /// </summary>
-        public EvolutionaryAlgorithm()
+        /// <param name="stopCondition">
+        ///     When this function signals true, the algorithm is completed.
+        /// </param>
+        /// <param name="token">Cancellation token for aborting.</param>
+        /// <returns>Task for awaiting</returns>
+        public async Task RunAsync(
+            Func<bool> stopCondition, CancellationToken token)
         {
-            randomGenerator = new Random();
-            factory = new PolygonFactory(this, randomGenerator);
-        }
-
-        public async Task RunAsync(Func<Boolean> stopCondition, CancellationToken token)
-        {
-            ctoken = token;
+            cancelationToken = token;
             await Task.Run(() => Run(stopCondition), token);
         }
-
-        private CancellationToken ctoken = CancellationToken.None;
-
 
         /// <summary>
         /// Run the actual algorithm
@@ -168,13 +235,15 @@ namespace org.monalisa.algorithm
         {
             // Call algorithm start event
             if (AlgorithmStarted != null)
+            {
                 AlgorithmStarted(this, new AlgorithmEvent(this));
+            }
 
             // start timer
-            TimeStarted = DateTime.Now;
+            this.TimeStarted = DateTime.Now;
 
             // Generate random intial population
-            population = factory.RandomCanvases();
+            this.population = factory.RandomCanvases();
 
             // while stopconditions is not met
             while (!stopCondition())
@@ -186,23 +255,31 @@ namespace org.monalisa.algorithm
                 population.AddRange(offspring);
 
                 // Kill off bottom
-                ApplySurvivalOffTheFitest();
+                population = CalculateFittest();
 
                 // update itteration count
                 Epoch++;
 
                 // update stagnation count
-                if (this.previousFitness == this.Fitness) StagnationCount++;
-                else StagnationCount = 0;
+                if (previousFitness == Fitness)
+                {
+                    StagnationCount++;
+                }
+                else
+                {
+                    StagnationCount = 0;
+                }
 
                 // Call epoch done event
                 if (EpochCompleted != null)
+                {
                     EpochCompleted(this, new AlgorithmEvent(this));
+                }
 
                 // update previous
                 previousFitness = Fitness;
 
-                ctoken.ThrowIfCancellationRequested();
+                cancelationToken.ThrowIfCancellationRequested();
             }
 
             // stop timer
@@ -210,103 +287,136 @@ namespace org.monalisa.algorithm
 
             // Call algorithm done event
             if (AlgorithmCompleted != null)
+            {
                 AlgorithmCompleted(this, new AlgorithmEvent(this));
+            }
         }
 
         /// <summary>
         /// Mutates candidates with a certain chance, 
         /// or mutates complete population if no candidates are given
         /// </summary>
-        /// <param name="candidates">individuals considered for mutation</param>
+        /// <param name="candidates">individuals considered</param>
         /// <returns>List of possibly mutated individuals</returns>
         protected List<ICanvas> Mutate(List<ICanvas> candidates = null)
         {
             // roll dice for each individual if selected, mutate
-            var newCanvases = candidates != null ? candidates.Select(c => c.Clone()).ToList() : population.Select(c => c.Clone()).ToList();
+            List<ICanvas> newCanvases;
+            if (candidates != null)
+            {
+                newCanvases = candidates.Select(c => c.Clone()).ToList();
+            }
+            else
+            {
+                newCanvases = this.population.Select(c => c.Clone()).ToList();
+            }
+
             foreach (var canvas in newCanvases)
             {
-                var dice = randomGenerator.NextDouble();
-                if (dice < WeightColorChange / WeightTotal)
+                var dice = this.rand.NextDouble();
+                if (dice < this.WeightColorChange / this.WeightTotal)
                 {
-                    canvas.Elements = canvas.Elements.Select(MutateColor).ToList();
+                    var i = this.rand.Next(this.PolygonCount);
+                    canvas.Elements[i] = this.MutateColor(canvas.Elements[i]);
                     continue;
                 }
 
-                dice = randomGenerator.NextDouble();
-                if (dice < WeightPositionChange / WeightTotal)
+                dice = this.rand.NextDouble();
+                if (dice < this.WeightPositionChange / this.WeightTotal)
                 {
-                    canvas.Elements = canvas.Elements.Select(MutatePosition).ToList();
+                    var i = this.rand.Next(this.PolygonCount);
+                    canvas.Elements[i] = this.MutatePosition(canvas.Elements[i]);
                     continue;
                 }
 
-                dice = randomGenerator.NextDouble();
-                if (dice < WeightIndexChange / WeightTotal)
+                dice = this.rand.NextDouble();
+                if (dice < this.WeightIndexChange / this.WeightTotal)
                 {
-                    ShuffleZOrder(canvas);
+                    var i = this.rand.Next(this.PolygonCount);
+                    var elem = canvas.Elements[i];
+                    canvas.Elements.Remove(elem);
+                    canvas.Elements.Insert(0, elem);
                     continue;
                 }
 
-                dice = randomGenerator.NextDouble();
-                if (dice < WeightRandomChange / WeightTotal)
+                dice = this.rand.NextDouble();
+                if (dice < this.WeightRandomChange / this.WeightTotal)
                 {
-                    canvas.Elements = factory.RandomPolygons();
+                    var i = this.rand.Next(this.PolygonCount);
+                    canvas.Elements.RemoveAt(i);
+                    canvas.Elements.Insert(0, this.factory.RandomPolygon());
                 }
             }
+
             return newCanvases;
         }
 
-        protected IShape MutateColor(IShape shape)
+        /// <summary>
+        /// Changes the color by some amount (default: ± 10).
+        /// </summary>
+        /// <param name="shape">The shape to change color of</param>
+        /// <param name="delta">The maximum amount to change the value</param>
+        /// <returns>The changed shape</returns>
+        protected IShape MutateColor(IShape shape, byte delta = 10)
         {
-            var polygon = shape.Clone() as Polygon;
-            polygon.Alpha = (byte)Math.Max(0, Math.Min(255, ((int)polygon.Alpha + randomGenerator.Next(-10, 11))));
-            polygon.Red = (byte)Math.Max(0, Math.Min(255, ((int)polygon.Red + randomGenerator.Next(-10, 11))));
-            polygon.Green = (byte)Math.Max(0, Math.Min(255, ((int)polygon.Green + randomGenerator.Next(-10, 11))));
-            polygon.Blue = (byte)Math.Max(0, Math.Min(255, ((int)polygon.Blue + randomGenerator.Next(-10, 11))));
-            return polygon;
+            var p = shape.Clone() as Polygon;
+            p.Alpha = p.Alpha.Change(delta, this.rand).Clip(0, 255);
+            p.Red = p.Red.Change(delta, this.rand).Clip(0, 255);
+            p.Green = p.Green.Change(delta, this.rand).Clip(0, 255);
+            p.Blue = p.Blue.Change(delta, this.rand).Clip(0, 255);
+            return p;
         }
 
-        protected IShape MutatePosition(IShape shape)
+        /// <summary>
+        /// Mutate the coordinates position (all at the same time).
+        /// default: ± 10 pixels.
+        /// </summary>
+        /// <param name="shape">The shape to change color of</param>
+        /// <param name="delta">The maximum amount to change the value</param>
+        /// <returns>The changed shape</returns>
+        protected IShape MutatePosition(IShape shape, int delta = 10)
         {
             var polygon = shape.Clone() as Polygon;
             for (int i = 0; i < polygon.Coordinates.Count; i++)
             {
-
-                var int1 = Math.Max(0, Math.Min(CanvasWidth, polygon.Coordinates[i].Item1 + randomGenerator.Next(-10, 11)));
-                var int2 = Math.Max(0, Math.Min(CanvasHeight, polygon.Coordinates[i].Item2 + randomGenerator.Next(-10, 11)));
+                var coord = polygon.Coordinates[i];
+                var int1 = coord.Item1.Change(delta, this.rand).Clip(0, CanvasWidth);
+                var int2 = coord.Item2.Change(delta, this.rand).Clip(0, CanvasHeight);
                 polygon.Coordinates[i] = new Tuple<int, int>(int1, int2);
             }
+
             return polygon;
         }
 
-        protected void ShuffleZOrder(ICanvas canvas)
+        /// <summary>
+        /// Get the fittest CanvasCount part of the population
+        /// </summary>
+        /// <returns>The fittest individuals</returns>
+        protected List<ICanvas> CalculateFittest()
         {
-            int n = canvas.Elements.Count;
-            while (n > 1)
-            {
-                n--;
-                int k = randomGenerator.Next(n + 1);
-                var value = canvas.Elements[k];
-                canvas.Elements[k] = canvas.Elements[n];
-                canvas.Elements[n] = value;
-            }
+            return population.SortByFitness().Take(this.CanvasCount).ToList();
         }
 
         /// <summary>
-        /// Take first 50 of old population as new population
+        /// Class containing event data for when
+        /// <see cref="EvolutionaryAlgorithm"/> class is triggered.
         /// </summary>
-        protected void ApplySurvivalOffTheFitest()
-        {
-            population = population.SortByFitness().Take(this.CanvasCount).ToList();
-        }
-
         public class AlgorithmEvent : EventArgs
         {
-            public EvolutionaryAlgorithm Current { get; protected set; }
-
+            /// <summary>
+            /// Initializes a new instance of the <see cref="AlgorithmEvent"/>
+            /// class. Contains the algorithm itself by default.
+            /// </summary>
+            /// <param name="current">The algorithm for this event</param>
             public AlgorithmEvent(EvolutionaryAlgorithm current)
             {
-                Current = current;
+                this.Current = current;
             }
+
+            /// <summary>
+            /// Gets or sets the current algorithm
+            /// </summary>
+            public EvolutionaryAlgorithm Current { get; protected set; }
         }
     }
 }

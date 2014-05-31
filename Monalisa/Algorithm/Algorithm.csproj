@@ -7,7 +7,7 @@
     <ProjectGuid>{1087340F-9181-4E32-87C9-EDDE6B9ADA38}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>org.monalisa.algorithm</RootNamespace>
+    <RootNamespace>Org.Monalisa.Algorithm</RootNamespace>
     <AssemblyName>Algorithm</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -43,12 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IAlgorithm.cs" />
     <Compile Include="Helpers\BitmapHelper.cs" />
     <Compile Include="Canvas.cs" />
     <Compile Include="Helpers\CanvasHelper.cs" />
     <Compile Include="EvolutionaryAlgorithm.cs" />
-    <Compile Include="Helpers\LinqHelper.cs" />
+    <Compile Include="Helpers\MathHelper.cs" />
     <Compile Include="Interfaces\ICloneable.cs" />
     <Compile Include="Painter.cs" />
     <Compile Include="PolygonFactory.cs" />
@@ -57,7 +56,6 @@
     <Compile Include="Interfaces\IPolygon.cs" />
     <Compile Include="Interfaces\IShape.cs" />
     <Compile Include="Polygon.cs" />
-    <Compile Include="Helpers\RandomHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

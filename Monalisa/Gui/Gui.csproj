@@ -7,7 +7,7 @@
     <ProjectGuid>{CD28617D-1F1B-448E-A0B8-9ACBEBF80D60}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>org.monalisa.gui</RootNamespace>
+    <RootNamespace>Org.Monalisa.Gui</RootNamespace>
     <AssemblyName>Gui</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>org.monalisa.gui.App</StartupObject>
+    <StartupObject>Org.Monalisa.Gui.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
