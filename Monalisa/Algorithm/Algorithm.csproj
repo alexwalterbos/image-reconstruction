@@ -43,11 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IAlgorithm.cs" />
     <Compile Include="Helpers\BitmapHelper.cs" />
     <Compile Include="Canvas.cs" />
     <Compile Include="Helpers\CanvasHelper.cs" />
     <Compile Include="EvolutionaryAlgorithm.cs" />
     <Compile Include="Helpers\LinqHelper.cs" />
+    <Compile Include="Helpers\BitHelper.cs" />
     <Compile Include="Painter.cs" />
     <Compile Include="PolygonFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

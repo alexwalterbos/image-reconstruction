@@ -41,28 +41,30 @@ namespace org.monalisa.algorithm
         /// The fitness of this canvas in the given environment (given upon construction).
         /// Fitness values are between 0.0 and 1.0. Higher fitness is better.
         /// </summary>
-        public double Fitness { get { return (fitness ?? (fitness = CalculateSimilarity())).Value; } }
+        public double Fitness { get { return (fitness ?? (fitness = CalculateMeanSquaredSimilarity())).Value; } }
 
         /// <summary>
         /// Fitness method 1. Calculates the MSE pixel-by-pixel.
         /// </summary>
-        private ulong CalculateMeanSquaredError()
+        private double CalculateMeanSquaredSimilarity()
         {
-            ulong mse = 0;
+            ulong meanSquaredError = 0;
+            ulong maxMeanSquaredError = ulong.MaxValue;
             using (var image = Painter.Paint(environment, this))
             {
                 byte[] test = image.AsByteArray();
                 byte[] seed = environment.Seed.AsByteArray();
+                maxMeanSquaredError = (255UL*255UL)*(ulong)seed.Length;
 
                 // use reversed loop for increased performance
                 for (int i = seed.Length - 1; i >= 0; i--)
                 {
                     ulong p1 = (ulong)seed[i];
                     ulong p2 = (ulong)test[i];
-                    mse += ((p1 - p2) * (p1 - p2));
+                    meanSquaredError += ((p1 - p2) * (p1 - p2));
                 }
             }
-            return mse;
+            return 1D-(double)meanSquaredError/(double)maxMeanSquaredError;
         }
 
         /// <summary>
@@ -83,6 +85,10 @@ namespace org.monalisa.algorithm
             }
             return similar;
         }
-    }
 
+        public override string ToString()
+        {
+            return string.Join("\n", Elements.Select(p=>p.ToString()).ToArray());
+        }
+    }
 }

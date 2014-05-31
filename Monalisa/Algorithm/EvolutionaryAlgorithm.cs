@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace org.monalisa.algorithm
@@ -14,6 +15,11 @@ namespace org.monalisa.algorithm
     /// </summary>
     public class EvolutionaryAlgorithm
     {
+        public event EventHandler<AlgorithmEvent> EpochCompleted;
+        public event EventHandler<AlgorithmEvent> FitterFound;
+        public event EventHandler<AlgorithmEvent> AlgorithmStarted;
+        public event EventHandler<AlgorithmEvent> AlgorithmCompleted;
+
         /// <summary>
         /// Width of canvas.
         /// </summary>
@@ -72,6 +78,17 @@ namespace org.monalisa.algorithm
         public int Epoch { get; protected set; }
 
         /// <summary>
+        /// Number of epochs the fittest individual has not changed
+        /// </summary>
+        public int StagnationCount { get; protected set; }
+
+        /// <summary>
+        /// Get the fitness of the fittest individual
+        /// </summary>
+        public double Fitness { get { return population.CalculateFittest().Fitness; } }
+        private double previousFitness = 0;
+        
+        /// <summary>
         /// Time the algorithm has currently ran
         /// </summary>
         public TimeSpan TimeRan
@@ -97,6 +114,14 @@ namespace org.monalisa.algorithm
         /// </summary>
         public DateTime? TimeStopped { get; protected set; }
 
+        public ReadOnlyCollection<ICanvas> Population
+        {
+            get
+            {
+                return population.AsReadOnly();
+            }
+        }
+
         // actual population used by algorithm
         private List<ICanvas> population;
 
@@ -114,27 +139,43 @@ namespace org.monalisa.algorithm
         {
             randomGenerator = new Random();
             factory = new PolygonFactory(this, randomGenerator);
-            CanvasWidth = 640;
-            CanvasHeight = 480;
-            CanvasCount = 100;
-            PolygonCount = 200;
+        }
+
+        /// <summary>
+        /// Initialize using the Red/Blue triangle Seed image and expirmental settings
+        /// Call this function before the Run()/RunAsync() function
+        /// </summary>
+        public void Init_Experimental()
+        {
+            CanvasWidth = 100;
+            CanvasHeight = 100;
+            CanvasCount = 50;
+            PolygonCount = 100;
             PolygonEdgeCount = 3; // triangles
-            CrossoverFactor = 0.25; // creates 25 pairs, 50 offspring
-            MutationChance = 0.01;
+            CrossoverFactor = 0.5;
+            MutationChance = 0.1;
 
             Seed = new Bitmap(CanvasWidth, CanvasHeight);
             using (Graphics gfx = Graphics.FromImage(Seed))
             {
                 var brushR = new SolidBrush(Color.Red);
                 var brushB = new SolidBrush(Color.Blue);
-                gfx.FillRectangle(brushB, 0, 0, 640, 480);
-                gfx.FillRectangle(brushR, 160, 120, 320, 240);                
+                var triangle1 = new Point[] { new Point(0, 0), new Point(100, 0), new Point(0, 100) };
+                var triangle2 = new Point[] { new Point(100, 100), new Point(100, 0), new Point(0, 100) };
+                gfx.FillPolygon(brushR, triangle1, System.Drawing.Drawing2D.FillMode.Alternate);
+                gfx.FillPolygon(brushB, triangle2, System.Drawing.Drawing2D.FillMode.Alternate);
                 brushR.Dispose();
                 brushB.Dispose();
             }
-            // goto {project_root}/Console/bin/{debug|release}/Seed.bmp to see seed image
-            Seed.Save("Seed.bmp");
         }
+        public async Task RunAsync(Func<Boolean> stopCondition, CancellationToken token)
+        {
+            ctoken = token;
+            await Task.Run(()=>Run(stopCondition), token);
+        }
+
+        private CancellationToken ctoken = CancellationToken.None;
+
 
         /// <summary>
         /// Run the actual algorithm
@@ -142,6 +183,10 @@ namespace org.monalisa.algorithm
         /// <param name="stopCondition">When to stop algorithm</param>
         public void Run(Func<bool> stopCondition) 
         {
+            // Call algorithm start event
+            if (AlgorithmStarted!=null) 
+                AlgorithmStarted(this, new AlgorithmEvent(this));
+
             // start timer
             TimeStarted = DateTime.Now;
 
@@ -159,22 +204,33 @@ namespace org.monalisa.algorithm
 
                 // add to general population
                 population.AddRange(offspring);
-
+                
                 // Kill off bottom
                 ApplySurvivalOffTheFitest();
 
                 // update itteration count
                 Epoch++;
 
-                // print fittest
-                Console.WriteLine(population.CalculateFittest().Fitness);
+                // update stagnation count
+                if (this.previousFitness == this.Fitness) StagnationCount++;
+                else StagnationCount = 0;                
+
+                // Call epoch done event
+                if (EpochCompleted != null)
+                    EpochCompleted(this, new AlgorithmEvent(this));
+
+                // update previous
+                previousFitness = Fitness;
+
+                ctoken.ThrowIfCancellationRequested();
             }
 
             // stop timer
             TimeStopped = DateTime.Now;
-
-            // output best result
-            Painter.Paint(this, population.CalculateFittest()).Save("fittest.bmp");
+            
+            // Call algorithm done event
+            if (AlgorithmCompleted != null)
+                AlgorithmCompleted(this, new AlgorithmEvent(this));
         }
 
         /// <summary>
@@ -307,6 +363,16 @@ namespace org.monalisa.algorithm
         protected void ApplySurvivalOffTheFitest()
         {
             population = population.SortByFitness().Take(this.CanvasCount).ToList();
+        }
+
+        public class AlgorithmEvent : EventArgs
+        {
+            public EvolutionaryAlgorithm Current { get; protected set; }
+
+            public AlgorithmEvent(EvolutionaryAlgorithm current)
+            {
+                Current = current;
+            }
         }
     }
 }
