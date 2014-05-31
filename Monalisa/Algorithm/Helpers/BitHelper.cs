@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------------
+// <copyright file="BitHelper.cs" company="Delft University of Technology">
+//  <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a>
+// </copyright>
+//-----------------------------------------------------------------------------
 
-namespace org.monalisa.algorithm
+namespace Org.Monalisa.Algorithm
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     /// <summary>
     /// Helper class for conversion from and to bits and bytes
     /// </summary>
@@ -28,9 +32,14 @@ namespace org.monalisa.algorithm
             var str = new StringBuilder();
             for (int i = 0; i < bits.Length; i++)
             {
-                if (i != 0 && i % 8 == 0) str.Append(" ");
+                if (i != 0 && i % 8 == 0)
+                {
+                    str.Append(" ");
+                }
+
                 str.Append(bits[i] ? 1 : 0);
             }
+
             return str.ToString();
         }
 
@@ -122,7 +131,10 @@ namespace org.monalisa.algorithm
         public static byte[] AsByteArray(this IShape shape)
         {
             var polygon = (IPolygon)shape;
-            if (polygon == null) throw new NotSupportedException("Only polygons are supported at this time");
+            if (polygon == null)
+            {
+                throw new NotSupportedException("Only polygons are supported at this time");
+            }
 
             var bytes = new List<byte>();
             bytes.Add(polygon.Red);
@@ -148,6 +160,7 @@ namespace org.monalisa.algorithm
         public static byte[] AsByteArray(this Tuple<int, int> point)
         {
             var bytes = new List<byte>();
+
             // bitconverter is big endian (x86 is little endian) => reverse
             bytes.AddRange(BitConverter.GetBytes(point.Item1).Reverse());
             bytes.AddRange(BitConverter.GetBytes(point.Item2).Reverse());
@@ -170,7 +183,6 @@ namespace org.monalisa.algorithm
         {
             return point.AsByteArray().AsBitArray();
         }
-
 
         /// <summary>
         /// Converts a <see cref="IShape"/> to bit array.
@@ -235,14 +247,21 @@ namespace org.monalisa.algorithm
         /// <returns>A polygon with N coordinates</returns>
         public static IPolygon AsPolygon(this byte[] bytes)
         {
-            if (bytes.Length % 8 != 4) throw new ArgumentException("invalid number of bytes for a polygon");
+            if (bytes.Length % 8 != 4)
+            {
+                throw new ArgumentException("invalid number of bytes for a polygon");
+            }
+
             var polygon = new Polygon();
             polygon.Red = bytes[0];
             polygon.Green = bytes[1];
             polygon.Blue = bytes[2];
             polygon.Alpha = bytes[3];
             for (int i = 4; i < bytes.Length; i += 8)
+            {
                 polygon.Coordinates.Add(bytes.Skip(i).Take(8).ToArray().AsTuple());
+            }
+
             return polygon;
         }
 
@@ -251,24 +270,28 @@ namespace org.monalisa.algorithm
         /// to a <see cref="ICanvas"/> object using settings in the given <seealso cref="EvolutionaryAlgorithm"/>.
         /// </summary>
         /// <param name="bytes">Bytes to convert</param>
-        /// <param name="EA">Algorithm to get PolygonCount and PolygonEdgeCount from</param>
+        /// <param name="ea">Algorithm to get PolygonCount and PolygonEdgeCount from</param>
         /// <returns>A canvas for the given EvolutionaryAlgorithm</returns>
-        public static ICanvas AsCanvas(this byte[] bytes, EvolutionaryAlgorithm EA)
+        public static ICanvas AsCanvas(this byte[] bytes, EvolutionaryAlgorithm ea)
         {
             // per polygon: 4B+8B*coords
             // per canvas: (4B+8B*C)*N where N=polygoncount            
-            var expectedPerPolygon = 4 + 8 * EA.PolygonEdgeCount;
-            var expectedPerCanvas = expectedPerPolygon * EA.PolygonCount;
-            if (bytes.Length != expectedPerCanvas) throw new ArgumentException(string.Format("expected {0} bytes, got {1}.", expectedPerCanvas, bytes.Length));
+            var expectedPerPolygon = 4 + (8 * ea.PolygonEdgeCount);
+            var expectedPerCanvas = expectedPerPolygon * ea.PolygonCount;
+            if (bytes.Length != expectedPerCanvas)
+            {
+                throw new ArgumentException(string.Format("expected {0} bytes, got {1}.", expectedPerCanvas, bytes.Length));
+            }
 
-            var canvas = new Canvas(EA);
+            var canvas = new Canvas(ea);
             canvas.Elements = new List<IShape>();
             for (int i = 0; i < bytes.Length; i += expectedPerPolygon)
+            {
                 canvas.Elements.Add(bytes.Skip(i).Take(expectedPerPolygon).ToArray().AsPolygon());
+            }
 
             return canvas;
         }
-
 
         /// <summary>
         /// Converts a little endian bit array of 64 bits to <see cref="Tuple"/>{int, int}.
@@ -279,7 +302,6 @@ namespace org.monalisa.algorithm
         {
             return bits.AsByteArray().AsTuple();
         }
-
 
         /// <summary>
         /// Converts a little endian byte array of ( 32 + 64 x N ) bits to a
@@ -297,34 +319,52 @@ namespace org.monalisa.algorithm
         /// to a <see cref="ICanvas"/> object using settings in the given <seealso cref="EvolutionaryAlgorithm"/>.
         /// </summary>
         /// <param name="bits">Bits to convert</param>
-        /// <param name="EA">Algorithm to get PolygonCount and PolygonEdgeCount from</param>
+        /// <param name="ea">Algorithm to get PolygonCount and PolygonEdgeCount from</param>
         /// <returns>A canvas for the given EvolutionaryAlgorithm</returns>
-        public static ICanvas AsCanvas(this bool[] bits, EvolutionaryAlgorithm EA)
+        public static ICanvas AsCanvas(this bool[] bits, EvolutionaryAlgorithm ea)
         {
-            return bits.AsByteArray().AsCanvas(EA);
+            return bits.AsByteArray().AsCanvas(ea);
         }
-
-
-        // enumerate bits from a byte
-        private static IEnumerable<bool> GetBits(byte B)
+        
+        /// <summary>
+        /// Enumerate bits from a byte
+        /// </summary>
+        /// <param name="singleByte">byte to convert to bits</param>
+        /// <returns>bits as boolean array</returns>
+        private static IEnumerable<bool> GetBits(byte singleByte)
         {
             for (int i = 0; i < 8; i++)
             {
-                yield return (B & 0x80) != 0;
-                B *= 2;
+                yield return (singleByte & 0x80) != 0;
+                singleByte *= 2;
             }
         }
 
-        // enumerate bytes from bit array (assumes b.length%8==0)
-        private static IEnumerable<byte> GetByte(bool[] b)
+        /// <summary>
+        /// Enumerate bytes from bit array (assumes b.length % 8 == 0)
+        /// </summary>
+        /// <param name="bitArray">bits to convert</param>
+        /// <returns>byte representation for the bits</returns>
+        private static IEnumerable<byte> GetByte(bool[] bitArray)
         {
-            if (b.Length % 8 != 0) throw new ArgumentException("only multitudes of 8 bits can be converted atm.");
-            byte B = 0x00;
-            for (int i = 0; i < b.Length; i++)
+            if (bitArray.Length % 8 != 0)
             {
-                if (i % 8 == 0) B = 0x00;
-                B += (byte)(b[i] ? 0x01 << (7 - i % 8) : 0x00);
-                if (i % 8 == 7) yield return B;
+                throw new ArgumentException("only multitudes of 8 bits can be converted atm.");
+            }
+
+            byte b = 0x00;
+            for (int i = 0; i < bitArray.Length; i++)
+            {
+                if (i % 8 == 0)
+                {
+                    b = 0x00;
+                }
+
+                b += (byte)(bitArray[i] ? 0x01 << (7 - (i % 8)) : 0x00);
+                if (i % 8 == 7)
+                {
+                    yield return b;
+                }
             }
         }
     }
