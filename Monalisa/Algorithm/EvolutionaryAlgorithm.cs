@@ -172,9 +172,10 @@ namespace Org.Monalisa.Algorithm
         /// <summary>
         /// Gets the current population of this algorithm.
         /// </summary>
-        public ReadOnlyCollection<ICanvas> Population
+        public List<ICanvas> Population
         {
-            get { return population.AsReadOnly(); }
+            get { return population; }
+            set { population = value; }
         }
 
         /// <summary>
@@ -242,8 +243,11 @@ namespace Org.Monalisa.Algorithm
             // start timer
             this.TimeStarted = DateTime.Now;
 
-            // Generate random intial population
-            this.population = factory.RandomCanvases();
+            // Generate random intial population (if not set beforehand)
+            if (this.population == null)
+            {
+                this.population = factory.RandomCanvases();
+            }
 
             // while stopconditions is not met
             while (!stopCondition())
