@@ -236,8 +236,12 @@ namespace Org.Monalisa.Gui
                 }
                 catch (OperationCanceledException)
                 {
-                    Label_Status.Content += "\nCanceled";
                     Painter.Paint(algorithm.Population.CalculateFittest()).Save(string.Format("img/Epoch_{0}K{1}.bmp", algorithm.Epoch / 1000, algorithm.Epoch % 1000));
+                    if (saveWhileRunning)
+                    {
+                        SaveSerializedCanvas(algorithm);
+                    }
+                    Label_Status.Content += "\nCanceled";
                 }
             }
         }
