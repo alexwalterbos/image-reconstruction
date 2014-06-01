@@ -18,6 +18,7 @@ namespace Org.Monalisa.Gui
     using System.Windows.Media.Imaging;
     using Microsoft.Win32;
     using Org.Monalisa.Algorithm;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Interaction logic
@@ -30,12 +31,18 @@ namespace Org.Monalisa.Gui
         private CancellationTokenSource ctc;
 
         /// <summary>
+        /// Flag to determin if current run should be saved to file once in a while
+        /// </summary>
+        private bool saveWhileRunning;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
         public MainWindow()
         {
             InitializeComponent();
             Directory.CreateDirectory("img");
+            Directory.CreateDirectory("saves");
             LoadPreviousSeed();
         }
 
@@ -136,6 +143,8 @@ namespace Org.Monalisa.Gui
             {
                 Button_Run.Content = "Stop";
                 ctc = new CancellationTokenSource();
+                saveWhileRunning = CheckBox_SaveWhileRunning.IsChecked==true;
+
 
                 var algorithm = new EvolutionaryAlgorithm()
                 {
@@ -150,6 +159,12 @@ namespace Org.Monalisa.Gui
                     WeightRandomChange = double.Parse(this.TextBox_RandomChange.Text),
                     Seed = ToBitmap((BitmapImage)SeedImage.Source)
                 };
+
+                // If a saves/Serialized.canvas exists, load it.
+                if (CheckBox_LoadSusupended.IsChecked == true)
+                {
+                    LoadSerialzedCanvasIfExists(algorithm);
+                }
 
                 // Get user defined values from the GUI where the checkbox/textbox structure applies
                 int? maxRuntime = GetIntIfFilledIn(CheckBox_MaxRuntime, TextBox_MaxRuntime);
@@ -189,10 +204,29 @@ namespace Org.Monalisa.Gui
                     }));
 
                     algorithm.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => SaveBitmap(Painter.Paint(algorithm.Population.CalculateFittest()), MainImage)));
-                    algorithm.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => Label_Status.Content = string.Format("Epoch:      {0, 9}\nStagnation: {2, 9}\nFitness:    {1,9:N6}\nRuntime:     {3:hh\\:mm\\:ss}", algorithm.Epoch, algorithm.Fitness, algorithm.StagnationCount, algorithm.TimeRan)));
+                    algorithm.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => Label_Status.Content = string.Format("Epoch:      {0, 11}\nStagnation: {2, 11}\nFitness:    {1,11:N6}\nRuntime:     {3:d\\.hh\\:mm\\:ss}", algorithm.Epoch, algorithm.Fitness, algorithm.StagnationCount, algorithm.TimeRan)));
+                    algorithm.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() =>
+                    {
+                        if (saveWhileRunning)
+                        {
+                            if (algorithm.Epoch % 1000 == 0)
+                            {
+                                SaveSerializedCanvas(algorithm);
+                            }
+                            if (algorithm.Epoch % 100000 == 0)
+                            {
+                                SaveSerializedCanvas(algorithm, string.Format("saves/Epoch_{0}k", algorithm.Epoch));
+                            }
+                        }
+                    }));
                     algorithm.AlgorithmCompleted += (s, args) => Dispatcher.Invoke(new Action(() =>
                     {
                         Painter.Paint(algorithm.Population.CalculateFittest()).Save(string.Format("img/Epoch_{0}K{1}.bmp", algorithm.Epoch / 1000, algorithm.Epoch % 1000));
+                        if (saveWhileRunning)
+                        {
+                            SaveSerializedCanvas(algorithm);
+                        }
+
                         Button_Run.Content = "Run";
                         Label_Status.Content += "\nFinished";
                         ctc = null;
@@ -202,9 +236,40 @@ namespace Org.Monalisa.Gui
                 }
                 catch (OperationCanceledException)
                 {
-                    Label_Status.Content += "\nCanceled";
                     Painter.Paint(algorithm.Population.CalculateFittest()).Save(string.Format("img/Epoch_{0}K{1}.bmp", algorithm.Epoch / 1000, algorithm.Epoch % 1000));
+                    if (saveWhileRunning)
+                    {
+                        SaveSerializedCanvas(algorithm);
+                    }
+                    Label_Status.Content += "\nCanceled";
                 }
+            }
+        }
+
+        private void SaveSerializedCanvas(EvolutionaryAlgorithm algorithm, string fileName = "saves/Suspended.canvas")
+        {
+            var bytes = algorithm.Population.CalculateFittest().AsByteArray();
+            File.WriteAllBytes(fileName, bytes);
+        }
+
+        private void LoadSerializedCanvas(EvolutionaryAlgorithm algorithm, string fileName = "saves/Suspended.canvas")
+        {
+            var canvas = File.ReadAllBytes(fileName).AsCanvas(algorithm);
+            if (algorithm.Population == null || algorithm.Population.Count == 0)
+            {
+                algorithm.Population = new List<ICanvas>(){canvas};
+            }
+            else
+            {
+                algorithm.Population.Add(canvas);
+            }
+        }
+
+        private void LoadSerialzedCanvasIfExists(EvolutionaryAlgorithm algorithm, string fileName = "saves/Suspended.canvas")
+        {
+            if (File.Exists(fileName))
+            {
+                LoadSerializedCanvas(algorithm, fileName);
             }
         }
 
