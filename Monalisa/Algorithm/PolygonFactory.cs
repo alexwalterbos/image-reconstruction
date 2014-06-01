@@ -117,10 +117,55 @@ namespace Org.Monalisa.Algorithm
         public List<Tuple<int, int>> RandomTuples(int? amount = null)
         {
             int count = amount ?? this.environment.PolygonEdgeCount;
+            var tuple1 = new Tuple<int,int> (0,0);
+            var tuple2 = new Tuple<int,int> (0,0);
+            var tuple3 = new Tuple<int,int> (0,0);
             var tupleList = new List<Tuple<int, int>>(count);
+            int originX = 0;
+            int originY = 0;
+            
             for (int i = 0; i < count; i++)
             {
-                tupleList.Add(this.RandomTuple());
+                tuple3 = tuple2;
+                tuple2 = tuple1;
+
+                //Create new coordinates with extra constraints
+
+                if (i == 0){
+                    tuple1 = this.RandomTuple();
+                    //Remember the x and y coordinate of the first coordinate
+                    originX = tuple1.Item1;
+                    originY = tuple1.Item2;
+                }
+                
+                if (i == 1){               
+                    //tuple should fulfill x2<x1 and y2>y1
+                    do
+                    {
+                        tuple1 = RandomTuple(0, originY);
+                    } while (tuple1.Item1 > originX);
+                }
+                if (i == 2){
+                    //tuple should fullfil x1 > x2 and y1>y2
+                    tuple1 = RandomTuple(tuple2.Item1, tuple2.Item2);
+                }
+                if (i == 3){
+                    //tuple should fullfil x1>x2 and x1>x4 and y1>y4 and y1 < y2
+                    do
+                    {
+                        tuple1 = RandomTuple(Math.Max(originX, tuple2.Item1), originY);
+                    } while (tuple1.Item2 > tuple2.Item2);
+                }
+                if (i == 4)
+                {
+                    //tuple should fullfil x1>x2 and y1<y2
+                    do
+                    {
+                        tuple1 = RandomTuple(tuple2.Item1, 0);
+                    } while (tuple1.Item2 > tuple2.Item2);
+                }
+                
+                tupleList.Add(tuple1);
             }
 
             return tupleList;
@@ -135,6 +180,13 @@ namespace Org.Monalisa.Algorithm
             return new Tuple<int, int>(
                 this.r.Next(this.environment.CanvasWidth), 
                 this.r.Next(this.environment.CanvasHeight));
+        }
+        
+                public Tuple<int, int> RandomTuple(int lowX, int lowY)
+        {
+            return new Tuple<int, int>(
+                this.r.Next(lowX, this.environment.CanvasWidth),
+                this.r.Next(lowY, this.environment.CanvasHeight));
         }
     }
 }
