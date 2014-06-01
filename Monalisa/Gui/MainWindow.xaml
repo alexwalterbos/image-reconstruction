@@ -4,131 +4,150 @@
         Title="MainWindow" Height="800" Width="1200">
     <Grid>
     	<Grid.ColumnDefinitions>
-    		<ColumnDefinition Width="140"/>
+    		<ColumnDefinition Width="150"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="2*"/>
-            </Grid.RowDefinitions>
-            <Label Grid.Row="0"  Content="Population Size" />
-            <Label Grid.Row="2"  Content="Canvas Size" />
-            <Label Grid.Row="4"  Content="Number of Polygons" />
-            <Label Grid.Row="6"  Content="Type of Polygons" />
-            <Label Grid.Row="8"  Content="Color Change" />
-            <Label Grid.Row="10" Content="Position Change" />
-            <Label Grid.Row="12" Content="Z-Index Change" />
-            <Label Grid.Row="14" Content="Random Change" />
-            <Label Grid.Row="16" Content="Max Runtime (sec)" />
-            <Label Grid.Row="18" Content="Max Epochs" />
-            <Label Grid.Row="20" Content="Max Stagnation" />
-            <Label Grid.Row="22" Content="Min Fitness" />
-            <Label Grid.Row="24" Content="Original Image" />
+        <ScrollViewer>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0"  Content="Population Size" />
+                <Label Grid.Row="2"  Content="Canvas Size" />
+                <Label Grid.Row="4"  Content="Number of Polygons" />
+                <Label Grid.Row="6"  Content="Type of Polygons" />
+                <Label Grid.Row="8"  Content="Color Change" />
+                <Label Grid.Row="10" Content="Position Change" />
+                <Label Grid.Row="12" Content="Z-Index Change" />
+                <Label Grid.Row="14" Content="Random Change" />
+                <Label Grid.Row="16" Content="Max Runtime (sec)" />
+                <Label Grid.Row="18" Content="Max Epochs" />
+                <Label Grid.Row="20" Content="Max Stagnation" />
+                <Label Grid.Row="22" Content="Min Fitness" />
+                <Label Grid.Row="24" Content="Original Image" />
             
-            <TextBox x:Name="TextBox_PopulationSize" Grid.Row="1" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" Text="10" />
-            <Grid Grid.Row="3">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="5*"/>
-                </Grid.ColumnDefinitions>
-                <TextBox x:Name="TextBox_CanvasSizeX" Grid.Column="0" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" IsEnabled="False" />
-                <Label Content="X"                    Grid.Column="1" Height="20" VerticalAlignment="Top" FontSize="10" Padding="0,5,0,0" HorizontalAlignment="Center"/>
-                <TextBox x:Name="TextBox_CanvasSizeY" Grid.Column="2" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" IsEnabled="False" />
-            </Grid>
-            <TextBox x:Name="TextBox_PolygonCount"   Grid.Row="5" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" Text="100" />
+                <TextBox x:Name="TextBox_PopulationSize" Grid.Row="1" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" Text="10" />
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="5*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="TextBox_CanvasSizeX" Grid.Column="0" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" IsEnabled="False" />
+                    <Label Content="X"                    Grid.Column="1" Height="20" VerticalAlignment="Top" FontSize="10" Padding="0,5,0,0" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="TextBox_CanvasSizeY" Grid.Column="2" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" IsEnabled="False" />
+                </Grid>
+                <TextBox x:Name="TextBox_PolygonCount"   Grid.Row="5" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyNumeric" Text="100" />
             
-            <ComboBox x:Name="ComboBox_PolygonType"  Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" SelectedIndex="1">
-                <ComboBoxItem Content="Triangles" Tag="3" />
-                <ComboBoxItem Content="Quads"     Tag="4" />
-                <ComboBoxItem Content="Pentagons" Tag="5" />
-                <ComboBoxItem Content="Hexagons"  Tag="6" />
-            </ComboBox>
+                <ComboBox x:Name="ComboBox_PolygonType"  Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" SelectedIndex="1">
+                    <ComboBoxItem Content="Triangles" Tag="3" />
+                    <ComboBoxItem Content="Quads"     Tag="4" />
+                    <ComboBoxItem Content="Pentagons" Tag="5" />
+                    <ComboBoxItem Content="Hexagons"  Tag="6" />
+                </ComboBox>
 
-            <TextBox x:Name="TextBox_PositionChange" Grid.Row="9" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="8.0" />
-            <TextBox x:Name="TextBox_ColorChange" Grid.Row="11" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="4.0" />
-            <TextBox x:Name="TextBox_ZIndexChange" Grid.Row="13" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="2.0" />
-            <TextBox x:Name="TextBox_RandomChange" Grid.Row="15" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="1.0" />
-            <Grid Grid.Row="16" Margin="0,22,0,0" Grid.RowSpan="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <CheckBox x:Name="CheckBox_MaxRuntime"/>
-                <TextBox x:Name="TextBox_MaxRuntime" Grid.Column="1" Text="60" Height="20" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBox_PositionChange" Grid.Row="9" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="8.0" />
+                <TextBox x:Name="TextBox_ColorChange" Grid.Row="11" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="4.0" />
+                <TextBox x:Name="TextBox_ZIndexChange" Grid.Row="13" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="2.0" />
+                <TextBox x:Name="TextBox_RandomChange" Grid.Row="15" Height="20" VerticalAlignment="Top" PreviewTextInput="OnlyDecimal" Text="1.0" />
+                <Grid Grid.Row="16" Margin="0,22,0,0" Grid.RowSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="CheckBox_MaxRuntime"/>
+                    <TextBox x:Name="TextBox_MaxRuntime" Grid.Column="1" Text="60" Height="20" VerticalAlignment="Top"/>
+                </Grid>
+                <Grid Grid.Row="19">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="CheckBox_MaxEpochs" />
+                    <TextBox x:Name="TextBox_MaxEpochs" Grid.Column="1" Text="100" Height="20" VerticalAlignment="Top"/>
+                </Grid>
+                <Grid Grid.Row="21">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="Checkbox_MaxStagnation" />
+                    <TextBox x:Name="TextBox_MaxStagnation" Grid.Column="1" Text="10" Height="20" VerticalAlignment="Top"/>
+                </Grid>
+                <Grid Grid.Row="23">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="Checkbox_MinFitness" IsChecked="True" />
+                    <TextBox x:Name="Textbox_MinFitness" Grid.Column="1" Text="0.99995" Height="20" VerticalAlignment="Top"/>
+                </Grid>
+                <Button     Grid.Row="25" Content="Browse..." Height="20" VerticalAlignment="Top" Click="Button_Click"/>
+                <Grid Grid.Row="26">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="CheckBox_SaveWhileRunning" IsChecked="True" VerticalAlignment="Center" />
+                    <Label Grid.Column="1" Content="Save To File" VerticalAlignment="Top"/>
+                </Grid>
+                <Grid Grid.Row="27">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="CheckBox_LoadSusupended" VerticalAlignment="Center" />
+                    <Label Grid.Column="1" Content="Load From File" VerticalAlignment="Top"/>
+                </Grid>
+                <Button x:Name="Button_Run"     Grid.Row="28" Content="Run" Click="Run_Click" />
             </Grid>
-            <Grid Grid.Row="19">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="100"/>
-                </Grid.ColumnDefinitions>
-                <CheckBox x:Name="CheckBox_MaxEpochs" />
-                <TextBox x:Name="TextBox_MaxEpochs" Grid.Column="1" Text="100" Height="20" VerticalAlignment="Top"/>
-            </Grid>
-            <Grid Grid.Row="21">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <CheckBox x:Name="Checkbox_MaxStagnation" />
-                <TextBox x:Name="TextBox_MaxStagnation" Grid.Column="1" Text="10" Height="20" VerticalAlignment="Top"/>
-            </Grid>
-            <Grid Grid.Row="23">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <CheckBox x:Name="Checkbox_MinFitness" IsChecked="True" />
-                <TextBox x:Name="Textbox_MinFitness" Grid.Column="1" Text="0.99995" Height="20" VerticalAlignment="Top"/>
-            </Grid>
-            <Button     Grid.Row="25" Content="Browse..." Height="20" VerticalAlignment="Top" Click="Button_Click"/>
-            <Button x:Name="Button_Run"     Grid.Row="26" Content="Run" Click="Run_Click" />
-        </Grid>
+        </ScrollViewer>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition Height="2*"/>
-                <RowDefinition />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Label x:Name="Label_Status" Grid.ColumnSpan="3" Grid.Row="0" FontFamily="Lucida Console" FontSize="20"/>
-            <Image x:Name="MainImage" Grid.Column="0" Grid.Row="1" Margin="20,0" />
-            <Image x:Name="CompareImage" Grid.Column="1" Grid.Row="1" Margin="20,0" />
-            <Image x:Name="SeedImage" Grid.Column="2" Grid.Row="1" Margin="20,0" />
-            <Label x:Name="Label_Similar" Grid.ColumnSpan="3" Grid.Row="2" HorizontalAlignment="Center" FontSize="72" FontFamily="Microsoft NeoGothic" />
+            <Label x:Name="Label_Status" FontFamily="Lucida Console" FontSize="20"/>
+            <Label x:Name="Label_Similar" Grid.Column="1" HorizontalAlignment="Center" FontSize="72" FontFamily="Microsoft NeoGothic" VerticalAlignment="Bottom" />
+            <Image x:Name="MainImage" Grid.Column="0" Grid.Row="1" Margin="20,0" VerticalAlignment="Top" />
+            <Image x:Name="CompareImage" Grid.Column="1" Grid.Row="1" Margin="20,0" VerticalAlignment="Top" />
+            <Image x:Name="SeedImage" Grid.Column="2" Grid.Row="1" Margin="20,0" VerticalAlignment="Top" />
         </Grid>
     </Grid>
 </Window>
