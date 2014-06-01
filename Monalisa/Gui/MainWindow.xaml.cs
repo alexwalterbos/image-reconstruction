@@ -153,32 +153,14 @@ namespace Org.Monalisa.Gui
                     Seed = ToBitmap((BitmapImage)SeedImage.Source)
                 };
 
+                // If a saves/Serialized.canvas exists, load it.
                 LoadSerialzedCanvasIfExists(algorithm);
 
-                int? maxRuntime = null;
-                int? maxEpochs = null;
-                int? maxStagnation = null;
-                double? minFitness = null;
-
-                if (CheckBox_MaxRuntime.IsChecked == true)
-                {
-                    maxRuntime = int.Parse(TextBox_MaxRuntime.Text);
-                }
-
-                if (CheckBox_MaxEpochs.IsChecked == true)
-                {
-                    maxEpochs = int.Parse(TextBox_MaxEpochs.Text);
-                }
-
-                if (Checkbox_MaxStagnation.IsChecked == true)
-                {
-                    maxStagnation = int.Parse(TextBox_MaxStagnation.Text);
-                }
-
-                if (Checkbox_MinFitness.IsChecked == true)
-                {
-                    minFitness = double.Parse(Textbox_MinFitness.Text);
-                }
+                // Get user defined values from the GUI where the checkbox/textbox structure applies
+                int? maxRuntime = GetIntIfFilledIn(CheckBox_MaxRuntime, TextBox_MaxRuntime);
+                int? maxEpochs = GetIntIfFilledIn(CheckBox_MaxEpochs, TextBox_MaxEpochs);
+                int? maxStagnation = GetIntIfFilledIn(Checkbox_MaxStagnation, TextBox_MaxStagnation);
+                double? minFitness = GetDoubleIfFilledIn(Checkbox_MinFitness, Textbox_MinFitness);
 
                 try
                 {
@@ -200,19 +182,7 @@ namespace Org.Monalisa.Gui
                             return;
                         }
 
-                        var bmp1 = ToBitmap(MainImage.Source as BitmapImage).AsByteArray();
-                        var bmp2 = ToBitmap(SeedImage.Source as BitmapImage).AsByteArray();
-                        var bmp3 = new byte[bmp1.Length];
-                        for (int i = 0; i < bmp1.Length; i += 4)
-                        {
-                            var dB = Math.Abs((int)bmp1[i] - (int)bmp2[i]);
-                            var dG = Math.Abs((int)bmp1[i + 1] - (int)bmp2[i + 1]);
-                            var dR = Math.Abs((int)bmp1[i + 2] - (int)bmp2[i + 2]);
-                            var dT = (dR + dG + dB) / 3;
-                            bmp3[i / 4] = (byte)(255 - dT);
-                        }
-
-                        SaveBitmap(bmp3.AsBitmap(algorithm.CanvasWidth, algorithm.CanvasHeight), CompareImage);
+                        GenerateDiffImageAndSave(algorithm);
                     }));
                     algorithm.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() => Label_Similar.Content = string.Format("{0:P2}", algorithm.Fitness)));
                     algorithm.EpochCompleted += (s, args) => Dispatcher.Invoke(new Action(() =>
@@ -279,6 +249,55 @@ namespace Org.Monalisa.Gui
             {
                 LoadSerializedCanvas(algorithm, fileName);
             }
+        }
+
+        private void GenerateDiffImageAndSave(EvolutionaryAlgorithm algorithm)
+        {
+            var mainImage = ToBitmap(MainImage.Source as BitmapImage).AsByteArray();
+            var seedImage = ToBitmap(SeedImage.Source as BitmapImage).AsByteArray();
+            var diffImage = new byte[mainImage.Length];
+            for (int i = 0; i < mainImage.Length; i += 4)
+            {
+                var dB = Math.Abs((int)mainImage[i] - (int)seedImage[i]);
+                var dG = Math.Abs((int)mainImage[i + 1] - (int)seedImage[i + 1]);
+                var dR = Math.Abs((int)mainImage[i + 2] - (int)seedImage[i + 2]);
+                var dT = (dR + dG + dB) / 3;
+                diffImage[i / 4] = (byte)(255 - dT);
+            }
+
+            SaveBitmap(diffImage.AsBitmap(algorithm.CanvasWidth, algorithm.CanvasHeight), CompareImage);
+        }
+
+        /// <summary>
+        /// Checks if <paramref name="checkbox"/> is checked, and if so, it parses the value in <paramref name="textbox"/>
+        /// </summary>
+        /// <param name="checkbox">CheckBox that expresses whether the value in <paramref name="textbox"/> should be used</param>
+        /// <param name="textbox">TextBox from which the value is taken if <paramref name="checkbox"/> is checked.</param>
+        /// <returns></returns>
+        private int? GetIntIfFilledIn(CheckBox checkbox, TextBox textbox)
+        {
+            if (checkbox.IsChecked == true)
+            {
+                return int.Parse(textbox.Text);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Same as GetIntIfFilledIn, but for double.
+        /// </summary>
+        /// <param name="checkbox"></param>
+        /// <param name="textbox"></param>
+        /// <returns></returns>
+        private double? GetDoubleIfFilledIn(CheckBox checkbox, TextBox textbox)
+        {
+            if (checkbox.IsChecked == true)
+            {
+                return double.Parse(textbox.Text);
+            }
+
+            return null;
         }
 
         /// <summary>
