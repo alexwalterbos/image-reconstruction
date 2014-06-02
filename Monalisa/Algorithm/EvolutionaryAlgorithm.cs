@@ -11,7 +11,9 @@ namespace Org.Monalisa.Algorithm
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Drawing;
+    using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -283,17 +285,33 @@ namespace Org.Monalisa.Algorithm
                 // update previous
                 previousFitness = Fitness;
 
+                ProcessStatistics(previousFitness);
+
                 cancelationToken.ThrowIfCancellationRequested();
             }
 
             // stop timer
             TimeStopped = DateTime.Now;
 
+
             // Call algorithm done event
             if (AlgorithmCompleted != null)
             {
                 AlgorithmCompleted(this, new AlgorithmEvent(this));
             }
+        }
+
+        private void ProcessStatistics(double previousFitness)
+        {
+            string filePath = "saves/statistics.csv";
+            string delimiter = ",";
+
+            string[] output = new string[] { Epoch.ToString(), TimeRan.ToString(), previousFitness.ToString() };
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(string.Join(delimiter, output));
+
+            File.AppendAllText(filePath, sb.ToString());
         }
 
         /// <summary>
