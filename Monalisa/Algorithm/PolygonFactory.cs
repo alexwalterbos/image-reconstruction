@@ -38,7 +38,7 @@ namespace Org.Monalisa.Algorithm
         {
             this.environment = env;
 
-            // assign given generator to r or default if null 
+            // Assign given generator to r or default if null 
             this.r = r ?? new Random();
         }
 
@@ -129,40 +129,45 @@ namespace Org.Monalisa.Algorithm
                 tuple3 = tuple2;
                 tuple2 = tuple1;
 
-                //Create new coordinates with extra constraints
-
-                if (i == 0){
-                    tuple1 = this.RandomTuple();
-                    //Remember the x and y coordinate of the first coordinate
-                    originX = tuple1.Item1;
-                    originY = tuple1.Item2;
-                }
-                
-                if (i == 1){               
-                    //tuple should fulfill x2<x1 and y2>y1
-                    do
-                    {
-                        tuple1 = RandomTuple(0, originY);
-                    } while (tuple1.Item1 > originX);
-                }
-                if (i == 2){
-                    //tuple should fullfil x1 > x2 and y1>y2
-                    tuple1 = RandomTuple(tuple2.Item1, tuple2.Item2);
-                }
-                if (i == 3){
-                    //tuple should fullfil x1>x2 and x1>x4 and y1>y4 and y1 < y2
-                    do
-                    {
-                        tuple1 = RandomTuple(Math.Max(originX, tuple2.Item1), originY);
-                    } while (tuple1.Item2 > tuple2.Item2);
-                }
-                if (i == 4)
+                // Create new coordinates with extra constraints. tuple1 is always most recent, then tuple2, tuple3. 
+                switch (i)
                 {
-                    //tuple should fullfil x1>x2 and y1<y2
-                    do
-                    {
-                        tuple1 = RandomTuple(tuple2.Item1, 0);
-                    } while (tuple1.Item2 > tuple2.Item2);
+                                        
+                    case 0: 
+                        tuple1 = this.RandomTuple();
+                        // Remember the x and y coordinate of the first coordinate
+                        originX = tuple1.Item1;
+                        originY = tuple1.Item2;
+                        break;
+                
+                    case 1:                
+                        // Tuple should fulfill x2<x1 and y2>y1
+                        do
+                        {
+                            tuple1 = RandomTuple(0, originY);
+                        } while (tuple1.Item1 > originX);
+                        break;
+                    
+                    case 2: 
+                        // Tuple should fullfil x1>x2 and y1>y2
+                        tuple1 = RandomTuple(tuple2.Item1, tuple2.Item2);
+                        break;
+
+                    case 3: 
+                        // Tuple should fullfil x1>x2 and x1>originX and y1>originY and y1 < y2
+                        do
+                        {
+                            tuple1 = RandomTuple(Math.Max(originX, tuple2.Item1), originY);
+                        } while (tuple1.Item2 > tuple2.Item2);
+                        break;
+                    
+                    case 4:
+                        // Tuple should fullfil x1>x2 and y1<y2
+                        do
+                        {
+                            tuple1 = RandomTuple(tuple2.Item1, 0);
+                        } while (tuple1.Item2 > tuple2.Item2);
+                        break;
                 }
                 
                 tupleList.Add(tuple1);
