@@ -8,7 +8,9 @@ namespace Org.Monalisa.Algorithm
 {
     using System.Collections.Generic;
     using System.Linq;
-
+    using System.Collections.ObjectModel;
+    using System.Drawing;
+    
     /// <summary>
     /// Canvases is what the population is made out of. Each canvas consists of 
     /// a collection of shapes.
@@ -91,30 +93,9 @@ namespace Org.Monalisa.Algorithm
             ulong meanSquaredError = 0;
             ulong maxMeanSquaredError = ulong.MaxValue;
 
-            // Blur image
-
-//Is it necessary to convert to Image?
-            //Image blurredImage = image;
-            
-            // Initialize a new BlurBitmapEffect that will be applied to the image
-            Effect myBlurEffect = new Effect();
-            
-            // Set the Radius property of the blur. This determines how blurry the effect will be. The larger the radius, the more blurring. 
-            myBlurEffect.Radius = 10;
-
-            // Set the KernelType property of the blur. A KernalType of "Box" creates less blur than the Gaussian kernal type.
-            myBlurEffect.KernelType = KernelType.Box;
-
-
             using (var image = Painter.Paint(this))
             {
-                Image imageUnblurred = (Image)image;
-
-                // Apply the bitmap effect to the Image.
-                imageUnblurred.BitmapEffect = myBlurEffect;
-                
-                Bitmap blurredImage = new Bitmap(blurredImage);
-                byte[] test = blurredImage.AsByteArray();
+                byte[] test = image.AsByteArray();
                 byte[] seed = this.Environment.Seed.AsByteArray();
                 maxMeanSquaredError = (255UL * 255UL) * (ulong)seed.Length;
 
