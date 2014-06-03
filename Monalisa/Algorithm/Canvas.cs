@@ -8,8 +8,6 @@ namespace Org.Monalisa.Algorithm
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Collections.ObjectModel;
-    using System.Drawing;
     
     /// <summary>
     /// Canvases is what the population is made out of. Each canvas consists of 
