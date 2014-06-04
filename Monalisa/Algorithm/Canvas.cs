@@ -8,7 +8,7 @@ namespace Org.Monalisa.Algorithm
 {
     using System.Collections.Generic;
     using System.Linq;
-
+    
     /// <summary>
     /// Canvases is what the population is made out of. Each canvas consists of 
     /// a collection of shapes.
@@ -90,6 +90,7 @@ namespace Org.Monalisa.Algorithm
         {
             ulong meanSquaredError = 0;
             ulong maxMeanSquaredError = ulong.MaxValue;
+
             using (var image = Painter.Paint(this))
             {
                 byte[] test = image.AsByteArray();

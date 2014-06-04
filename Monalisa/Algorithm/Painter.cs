@@ -40,8 +40,18 @@ namespace Org.Monalisa.Algorithm
                     Paint(element, gfx);
                 }
             }
+            // Turn blurring on or off
+            bool blurring = true;
 
-            return image;
+            Bitmap newImage = image;
+            if (blurring)
+            {
+                // Create a filter
+                AForge.Imaging.Filters.Blur filter = new AForge.Imaging.Filters.Blur();
+                // Apply the filter
+                newImage = filter.Apply(image);
+            }
+            return newImage;
         }
 
         /// <summary>
