@@ -293,7 +293,6 @@ namespace Org.Monalisa.Algorithm
             // stop timer
             TimeStopped = DateTime.Now;
 
-
             // Call algorithm done event
             if (AlgorithmCompleted != null)
             {

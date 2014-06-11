@@ -35,6 +35,8 @@ namespace Org.Monalisa.Gui
         /// </summary>
         private bool saveWhileRunning;
 
+        private MLApp.MLApp matlab = new MLApp.MLApp();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
@@ -241,6 +243,14 @@ namespace Org.Monalisa.Gui
                     {
                         SaveSerializedCanvas(algorithm);
                     }
+
+                    String filePath = "saves/statistics.csv";
+
+                    string[] fileLines = File.ReadAllLines(filePath);
+
+                    foreach(String line in fileLines){
+                    }
+
                     Label_Status.Content += "\nCanceled";
                 }
             }
