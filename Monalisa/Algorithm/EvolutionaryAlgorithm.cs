@@ -305,7 +305,7 @@ namespace Org.Monalisa.Algorithm
             string filePath = "saves/statistics.csv";
             string delimiter = ",";
 
-            string[] output = new string[] { Epoch.ToString(), TimeRan.ToString(), previousFitness.ToString() };
+            string[] output = new string[] { Epoch.ToString(), TimeRan.ToString(), (previousFitness*1000).ToString() };
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(string.Join(delimiter, output));
