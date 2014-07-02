@@ -41,7 +41,7 @@ namespace Org.Monalisa.Algorithm
                 }
             }
             // Turn blurring on or off
-            bool blurring = true;
+            bool blurring = false;
 
             Bitmap newImage = image;
             if (blurring)
