@@ -99,13 +99,13 @@ namespace Org.Monalisa.Algorithm
         /// </summary>
         /// <param name="shape">Polygon</param>
         /// <returns>True if concave, else False</returns>
-        public static bool IsConcave(this Polygon shape)
+        public static bool IsConvex(this Polygon shape)
         {
             var polygon = shape.Clone() as Polygon;
-            int num_vertices = polygon.Coordinates.Count;
-            double cur_det_value;
+            int numVertices = polygon.Coordinates.Count;
+            double curDetValue;
 
-            for (int i = 0; i < num_vertices; i++)
+            for (int i = 0; i < numVertices; i++)
             {
                 var coord = polygon.Coordinates[i];
                 var int1 = coord.Item1;
@@ -115,7 +115,7 @@ namespace Org.Monalisa.Algorithm
             }
 
             // There are more than 4 vertices, so also check for seperate parts. This works only for pentagons
-            if (num_vertices > 4 && num_vertices < 7)
+            if (numVertices > 4 && numVertices < 7)
             {
                 Polygon polyFirst = new Polygon();
                 Polygon polySec = new Polygon();
@@ -126,42 +126,42 @@ namespace Org.Monalisa.Algorithm
                     polyFirst.Coordinates.Add(polygon.Coordinates[i]);
                 }
 
-                for (int i = num_vertices-4; i < (num_vertices); i++)
+                for (int i = numVertices-4; i < (numVertices); i++)
                 {
                     polySec.Coordinates.Add(polygon.Coordinates[i]);
                 }
                 
                 // Both polygons should be concave
-                if (!(polyFirst.IsConcave() && polySec.IsConcave())){
+                if (!(polyFirst.IsConvex() && polySec.IsConvex())){
                     return false;
                 }
             }
 
-            if (num_vertices < 3)
+            if (numVertices < 3)
             {
                 return true;
             }
 
-            Tuple<int, int> v1 = CalcVector(polygon.Coordinates[0], polygon.Coordinates[num_vertices - 1]);
+            Tuple<int, int> v1 = CalcVector(polygon.Coordinates[0], polygon.Coordinates[numVertices - 1]);
             Tuple<int, int> v2 = CalcVector(polygon.Coordinates[1], polygon.Coordinates[0]);
-            double det_value = CalcDet(v1, v2);
+            double detValue = CalcDet(v1, v2);
 
-            for (int i = 1; i<num_vertices-1; i++){
+            for (int i = 1; i<numVertices-1; i++){
                 v1 = v2;
                 v2 = CalcVector(polygon.Coordinates[i+1],polygon.Coordinates[i]);
-                cur_det_value = CalcDet(v1,v2);
+                curDetValue = CalcDet(v1,v2);
 
-                if( (cur_det_value * det_value) < 0.0)
+                if( (curDetValue * detValue) < 0.0)
                 {
                     return false;
                 }
             }
 
             v1 = v2;
-            v2 = CalcVector(polygon.Coordinates[0], polygon.Coordinates[num_vertices - 1]);
-            cur_det_value = CalcDet(v1, v2);
+            v2 = CalcVector(polygon.Coordinates[0], polygon.Coordinates[numVertices - 1]);
+            curDetValue = CalcDet(v1, v2);
 
-            if ( (cur_det_value * det_value) < 0.0)
+            if ( (curDetValue * detValue) < 0.0)
             {
                 return false;
             }

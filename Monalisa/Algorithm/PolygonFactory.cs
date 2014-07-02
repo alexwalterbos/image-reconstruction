@@ -108,7 +108,7 @@ namespace Org.Monalisa.Algorithm
                     Green = (byte)this.r.Next(255),
                     Blue = (byte)this.r.Next(255)
                 };
-            } while (!polygon.IsConcave());
+            } while (!polygon.IsConvex());
 
             return polygon;
         }

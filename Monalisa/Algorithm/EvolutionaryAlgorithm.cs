@@ -446,7 +446,7 @@ namespace Org.Monalisa.Algorithm
                     var int2 = coord.Item2.Change(delta, this.rand).Clip(0, CanvasHeight);
                     polygon.Coordinates[i] = new Tuple<int, int>(int1, int2);
                 }
-            }while(!(polygon.IsConcave()));
+            }while(!(polygon.IsConvex()));
 
             return polygon;
         }
