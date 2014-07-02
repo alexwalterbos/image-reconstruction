@@ -97,14 +97,21 @@ namespace Org.Monalisa.Algorithm
         /// <returns>The generated polygon.</returns>
         public IShape RandomPolygon()
         {
-            return new Polygon()
+            var polygon = new Polygon();
+            do
             {
-                Coordinates = this.RandomTuples(),
-                Alpha = (byte)this.r.Next(255),
-                Red = (byte)this.r.Next(255),
-                Green = (byte)this.r.Next(255),
-                Blue = (byte)this.r.Next(255)
-            };
+                polygon = new Polygon()
+                {
+                    Coordinates = this.RandomTuples(),
+                    Alpha = (byte)this.r.Next(255),
+                    Red = (byte)this.r.Next(255),
+                    Green = (byte)this.r.Next(255),
+                    Blue = (byte)this.r.Next(255)
+                };
+            }
+            while (polygon.isConcave());
+
+            return polygon;
         }
 
         /// <summary>

@@ -95,7 +95,7 @@ namespace Org.Monalisa.Algorithm
         }
 
         // return a number : number < 0 concave,  number > 0 convex, number = 0 if num_vertices < 3 
-        public static bool IsConcave(IShape shape)
+        public static bool IsConcave(this Polygon shape)
         {
             var polygon = shape.Clone() as Polygon;
             int num_vertices = polygon.Coordinates.Count;
