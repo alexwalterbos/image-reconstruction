@@ -298,6 +298,8 @@ namespace Org.Monalisa.Algorithm
                 cancelationToken.ThrowIfCancellationRequested();
             }
 
+            Matlabify();
+
             // stop timer
             TimeStopped = DateTime.Now;
 
