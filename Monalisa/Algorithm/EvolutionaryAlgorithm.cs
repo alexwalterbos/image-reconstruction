@@ -396,7 +396,7 @@ namespace Org.Monalisa.Algorithm
                     var i = this.rand.Next(this.PolygonCount);
                     var elem = canvas.Elements[i];
                     canvas.Elements.Remove(elem);
-                    canvas.Elements.Insert(0, elem);
+                    canvas.Elements.Insert(this.PolygonCount - 1, elem);
                     continue;
                 }
 
@@ -405,7 +405,7 @@ namespace Org.Monalisa.Algorithm
                 {
                     var i = this.rand.Next(this.PolygonCount);
                     canvas.Elements.RemoveAt(i);
-                    canvas.Elements.Insert(0, this.factory.RandomPolygon());
+                    canvas.Elements.Insert(this.PolygonCount-1, this.factory.RandomPolygon());
                 }
             }
 
