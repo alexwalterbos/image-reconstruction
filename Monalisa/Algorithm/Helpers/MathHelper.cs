@@ -94,7 +94,11 @@ namespace Org.Monalisa.Algorithm
             return BitConverter.ToUInt64(buffer, 0);
         }
 
-        // return a number : number < 0 concave,  number > 0 convex, number = 0 if num_vertices < 3 
+        /// <summary>
+        /// Checks if polygon is concave, works for squares and pentagons
+        /// </summary>
+        /// <param name="shape">Polygon</param>
+        /// <returns>True if concave, else False</returns>
         public static bool IsConcave(this Polygon shape)
         {
             var polygon = shape.Clone() as Polygon;
@@ -110,6 +114,34 @@ namespace Org.Monalisa.Algorithm
                 
             }
 
+            // There are more than 4 vertices, so also check for seperate parts. This works only for pentagons
+            if (num_vertices > 4 && num_vertices < 7)
+            {
+                Polygon polyFirst = new Polygon();
+                Polygon polySec = new Polygon();
+
+                // Split the polygon up in two parts and check individual concavity
+                for (int i = 0; i < 4; i++)
+                {
+                    polyFirst.Coordinates.Add(polygon.Coordinates[i]);
+                }
+
+                for (int i = num_vertices-4; i < (num_vertices); i++)
+                {
+                    polySec.Coordinates.Add(polygon.Coordinates[i]);
+                }
+                
+                // Both polygons should be concave
+                if (!(polyFirst.IsConcave() && polySec.IsConcave())){
+                    return false;
+                }
+            }
+
+            if (num_vertices < 3)
+            {
+                return true;
+            }
+
             Tuple<int, int> v1 = CalcVector(polygon.Coordinates[0], polygon.Coordinates[num_vertices - 1]);
             Tuple<int, int> v2 = CalcVector(polygon.Coordinates[1], polygon.Coordinates[0]);
             double det_value = CalcDet(v1, v2);
@@ -121,7 +153,7 @@ namespace Org.Monalisa.Algorithm
 
                 if( (cur_det_value * det_value) < 0.0)
                 {
-                    return true;
+                    return false;
                 }
             }
 

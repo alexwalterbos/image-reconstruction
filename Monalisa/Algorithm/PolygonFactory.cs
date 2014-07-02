@@ -108,8 +108,7 @@ namespace Org.Monalisa.Algorithm
                     Green = (byte)this.r.Next(255),
                     Blue = (byte)this.r.Next(255)
                 };
-            }
-            while (polygon.isConcave());
+            } while (!polygon.IsConcave());
 
             return polygon;
         }
@@ -128,59 +127,12 @@ namespace Org.Monalisa.Algorithm
             var tuple2 = new Tuple<int,int> (0,0);
             var tuple3 = new Tuple<int,int> (0,0);
             var tupleList = new List<Tuple<int, int>>(count);
-            int originX = 0;
-            int originY = 0;
-            
+
             for (int i = 0; i < count; i++)
             {
-                tuple3 = tuple2;
-                tuple2 = tuple1;
-
-                // Create new coordinates with extra constraints. tuple1 is always most recent, then tuple2, tuple3. 
-                switch (i)
-                {
-                                        
-                    case 0: 
-                        tuple1 = this.RandomTuple();
-                        // Remember the x and y coordinate of the first coordinate
-                        originX = tuple1.Item1;
-                        originY = tuple1.Item2;
-                        break;
-                
-                    case 1:                
-                        // Tuple should fulfill x2<x1 and y2>y1
-                        do
-                        {
-                            tuple1 = RandomTuple(0, originY);
-                        } while (tuple1.Item1 > originX);
-                        break;
-                    
-                    case 2: 
-                        // Tuple should fullfil x1>x2 and y1>y2
-                        tuple1 = RandomTuple(tuple2.Item1, tuple2.Item2);
-                        break;
-
-                    case 3: 
-                        // Tuple should fullfil x1>x2 and x1>originX and y1>originY and y1 < y2
-                        do
-                        {
-                            tuple1 = RandomTuple(Math.Max(originX, tuple2.Item1), originY);
-                        } while (tuple1.Item2 > tuple2.Item2);
-                        break;
-                    
-                    case 4:
-                        // Tuple should fullfil x1>x2 and y1<y2
-                        do
-                        {
-                            tuple1 = RandomTuple(tuple2.Item1, 0);
-                        } while (tuple1.Item2 > tuple2.Item2);
-                        break;
-                }
-                
-                tupleList.Add(tuple1);
+                tupleList.Add(RandomTuple(0, 0));
             }
-
-            return tupleList;
+                return tupleList;
         }
 
         /// <summary>
@@ -194,7 +146,7 @@ namespace Org.Monalisa.Algorithm
                 this.r.Next(this.environment.CanvasHeight));
         }
         
-                public Tuple<int, int> RandomTuple(int lowX, int lowY)
+        public Tuple<int, int> RandomTuple(int lowX, int lowY)
         {
             return new Tuple<int, int>(
                 this.r.Next(lowX, this.environment.CanvasWidth),
