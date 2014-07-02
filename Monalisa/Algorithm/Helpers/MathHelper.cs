@@ -93,5 +93,64 @@ namespace Org.Monalisa.Algorithm
             r.NextBytes(buffer);
             return BitConverter.ToUInt64(buffer, 0);
         }
+
+        // return a number : number < 0 concave,  number > 0 convex, number = 0 if num_vertices < 3 
+        public static bool IsConcave(IShape shape)
+        {
+            var polygon = shape.Clone() as Polygon;
+            int num_vertices = polygon.Coordinates.Count;
+            double cur_det_value;
+
+            for (int i = 0; i < num_vertices; i++)
+            {
+                var coord = polygon.Coordinates[i];
+                var int1 = coord.Item1;
+                var int2 = coord.Item2;
+                polygon.Coordinates[i] = new Tuple<int, int>(int1, int2);
+                
+            }
+
+            Tuple<int, int> v1 = CalcVector(polygon.Coordinates[0], polygon.Coordinates[num_vertices - 1]);
+            Tuple<int, int> v2 = CalcVector(polygon.Coordinates[1], polygon.Coordinates[0]);
+            double det_value = CalcDet(v1, v2);
+
+            for (int i = 1; i<num_vertices-1; i++){
+                v1 = v2;
+                v2 = CalcVector(polygon.Coordinates[i+1],polygon.Coordinates[i]);
+                cur_det_value = CalcDet(v1,v2);
+
+                if( (cur_det_value * det_value) < 0.0)
+                {
+                    return true;
+                }
+            }
+
+            v1 = v2;
+            v2 = CalcVector(polygon.Coordinates[0], polygon.Coordinates[num_vertices - 1]);
+            cur_det_value = CalcDet(v1, v2);
+
+            if ( (cur_det_value * det_value) < 0.0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        // Calculate the difference vector
+        public static Tuple<int,int> CalcVector(Tuple<int,int> v1, Tuple<int,int> v2)
+        {
+            var vector = new Tuple<int,int>(v1.Item1 - v2.Item1, v1.Item2 - v2.Item2);
+            return vector;
+        }
+
+        public static double CalcDet(Tuple<int,int> v1, Tuple<int,int> v2)
+        {
+            return (v1.Item1 * v2.Item2 - v1.Item2 * v2.Item1);
+
+        }
+    
     }
 }
