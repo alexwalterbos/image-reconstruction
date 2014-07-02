@@ -443,16 +443,18 @@ namespace Org.Monalisa.Algorithm
         /// <param name="shape">The shape to change color of</param>
         /// <param name="delta">The maximum amount to change the value</param>
         /// <returns>The changed shape</returns>
-        protected IShape MutatePosition(IShape shape, int delta = 10)
+        protected IShape MutatePosition(IShape shape, int delta = 100)
         {
             var polygon = shape.Clone() as Polygon;
-            for (int i = 0; i < polygon.Coordinates.Count; i++)
-            {
-                var coord = polygon.Coordinates[i];
-                var int1 = coord.Item1.Change(delta, this.rand).Clip(0, CanvasWidth);
-                var int2 = coord.Item2.Change(delta, this.rand).Clip(0, CanvasHeight);
-                polygon.Coordinates[i] = new Tuple<int, int>(int1, int2);
-            }
+            do{
+                for (int i = 0; i < polygon.Coordinates.Count; i++)
+                {
+                    var coord = polygon.Coordinates[i];
+                    var int1 = coord.Item1.Change(delta, this.rand).Clip(0, CanvasWidth);
+                    var int2 = coord.Item2.Change(delta, this.rand).Clip(0, CanvasHeight);
+                    polygon.Coordinates[i] = new Tuple<int, int>(int1, int2);
+                }
+            }while(!(polygon.IsConvex()));
 
             return polygon;
         }
