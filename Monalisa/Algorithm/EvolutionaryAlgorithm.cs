@@ -22,6 +22,9 @@ namespace Org.Monalisa.Algorithm
     /// </summary>
     public class EvolutionaryAlgorithm
     {
+
+        private static Dictionary<int, double> statistics;
+
         /// <summary>
         /// Backing field for <see cref="SeedByteArray"/>.
         /// </summary>
@@ -61,6 +64,7 @@ namespace Org.Monalisa.Algorithm
         {
             rand = new Random();
             factory = new PolygonFactory(this, rand);
+            statistics = new Dictionary<int, double>();
         }
 
         /// <summary>
@@ -320,6 +324,9 @@ namespace Org.Monalisa.Algorithm
 
         private void ProcessStatistics(double previousFitness)
         {
+
+            statistics.Add(Epoch, previousFitness);
+
             string delimiter = ",";
 
             string[] output = new string[] { Epoch.ToString(), TimeRan.ToString(), Math.Floor(previousFitness*1000d).ToString() };
@@ -332,25 +339,26 @@ namespace Org.Monalisa.Algorithm
 
         public void Matlabify()
         {
-            string[] fileLines = File.ReadAllLines(filePath);
-            int passedCount = 0;
+            DateTime begin, end; 
+            begin = DateTime.UtcNow;
+            string epochs = string.Join(",", statistics.Keys.Select(x => x.ToString()).ToArray());
+            string fitnesses = string.Join(",", statistics.Values.Select(x => x.ToString().Replace(',', '.')).ToArray());
+            
+            end = DateTime.UtcNow;
+            Console.WriteLine("Created the strings in " + (end - begin).TotalSeconds + " seconds.");
+            begin = DateTime.UtcNow;
 
-            Console.WriteLine(matlab.Execute("epochs=[]"));
-            Console.WriteLine(matlab.Execute("fitness=[]"));
+            matlab.Execute("epochs=["+epochs+"]");
+            matlab.Execute("fitnesses=["+fitnesses+"]");
 
-            foreach (String line in fileLines)
-            {
-                string[] words = line.Split(',');
-                matlab.Execute("epochs{" + passedCount + "}=" + words[0]);
-                matlab.Execute("fitness{" + passedCount + "}=" + words[2]);
-                passedCount++;
-            }
+            end = DateTime.UtcNow;
+            Console.WriteLine("Passed to matlab in " + (end - begin).TotalSeconds + " seconds.");
+            begin = DateTime.UtcNow;
 
-            matlab.Execute("plot(cell2mat(epochs),cell2mat(fitness),'b-')");
+            matlab.Execute("plot(epochs,fitnesses,'b-')");
 
-            var epochs = matlab.GetVariable("epochs", "base");
-            Console.WriteLine(epochs.ToString());
-
+            end = DateTime.UtcNow;
+            Console.WriteLine("Plotted in " + (end - begin).TotalSeconds + " seconds.");
         }
 
         /// <summary>
