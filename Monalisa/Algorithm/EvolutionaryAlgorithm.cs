@@ -131,6 +131,10 @@ namespace Org.Monalisa.Algorithm
         /// </summary>
         public int StagnationCount { get; protected set; }
 
+        private MLApp.MLApp matlab = new MLApp.MLApp();
+
+        public String filePath = "saves/statistics.csv";
+
         /// <summary>
         /// Gets the fitness of the fittest individual.
         /// </summary>
@@ -293,7 +297,6 @@ namespace Org.Monalisa.Algorithm
             // stop timer
             TimeStopped = DateTime.Now;
 
-
             // Call algorithm done event
             if (AlgorithmCompleted != null)
             {
@@ -301,17 +304,53 @@ namespace Org.Monalisa.Algorithm
             }
         }
 
+        public void DeleteStatsFileIfExists()
+        {
+            try
+            {
+                File.Delete(filePath);
+
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.ToString());
+                throw;
+            }
+        }
+
         private void ProcessStatistics(double previousFitness)
         {
-            string filePath = "saves/statistics.csv";
             string delimiter = ",";
 
-            string[] output = new string[] { Epoch.ToString(), TimeRan.ToString(), previousFitness.ToString() };
+            string[] output = new string[] { Epoch.ToString(), TimeRan.ToString(), Math.Floor(previousFitness*1000d).ToString() };
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(string.Join(delimiter, output));
 
             File.AppendAllText(filePath, sb.ToString());
+        }
+
+        public void Matlabify()
+        {
+            string[] fileLines = File.ReadAllLines(filePath);
+            int passedCount = 0;
+
+            Console.WriteLine(matlab.Execute("epochs=[]"));
+            Console.WriteLine(matlab.Execute("fitness=[]"));
+
+            foreach (String line in fileLines)
+            {
+                string[] words = line.Split(',');
+                matlab.Execute("epochs{" + passedCount + "}=" + words[0]);
+                matlab.Execute("fitness{" + passedCount + "}=" + words[2]);
+                passedCount++;
+            }
+
+            matlab.Execute("plot(cell2mat(epochs),cell2mat(fitness),'b-')");
+
+            var epochs = matlab.GetVariable("epochs", "base");
+            Console.WriteLine(epochs.ToString());
+
         }
 
         /// <summary>

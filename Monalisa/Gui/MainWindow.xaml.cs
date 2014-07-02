@@ -143,7 +143,7 @@ namespace Org.Monalisa.Gui
             {
                 Button_Run.Content = "Stop";
                 ctc = new CancellationTokenSource();
-                saveWhileRunning = CheckBox_SaveWhileRunning.IsChecked==true;
+                saveWhileRunning = CheckBox_SaveWhileRunning.IsChecked == true;
 
 
                 var algorithm = new EvolutionaryAlgorithm()
@@ -174,6 +174,8 @@ namespace Org.Monalisa.Gui
 
                 try
                 {
+                    algorithm.DeleteStatsFileIfExists();
+
                     algorithm.AlgorithmStarted += (s, args) => Dispatcher.Invoke(new Action(() =>
                         {
                             try
@@ -241,6 +243,9 @@ namespace Org.Monalisa.Gui
                     {
                         SaveSerializedCanvas(algorithm);
                     }
+
+                    algorithm.Matlabify();
+
                     Label_Status.Content += "\nCanceled";
                 }
             }
@@ -257,7 +262,7 @@ namespace Org.Monalisa.Gui
             var canvas = File.ReadAllBytes(fileName).AsCanvas(algorithm);
             if (algorithm.Population == null || algorithm.Population.Count == 0)
             {
-                algorithm.Population = new List<ICanvas>(){canvas};
+                algorithm.Population = new List<ICanvas>() { canvas };
             }
             else
             {
@@ -332,10 +337,10 @@ namespace Org.Monalisa.Gui
         /// <param name="minFitness">Minimum achieved fitness</param>
         /// <returns>True if algorithm should stop</returns>
         private bool StopCondition(
-            EvolutionaryAlgorithm ea, 
+            EvolutionaryAlgorithm ea,
             int? maxRuntime,
-            int? maxEpochs, 
-            int? maxStagnation, 
+            int? maxEpochs,
+            int? maxStagnation,
             double? minFitness)
         {
             bool stop = false;
