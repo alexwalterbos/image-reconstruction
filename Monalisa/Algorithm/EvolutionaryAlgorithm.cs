@@ -435,7 +435,7 @@ namespace Org.Monalisa.Algorithm
         /// <param name="shape">The shape to change color of</param>
         /// <param name="delta">The maximum amount to change the value</param>
         /// <returns>The changed shape</returns>
-        protected IShape MutatePosition(IShape shape, int delta = 250)
+        protected IShape MutatePosition(IShape shape, int delta = 100)
         {
             var polygon = shape.Clone() as Polygon;
             do{
